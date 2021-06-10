@@ -48,6 +48,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
     ClinicalT$FollowUp <- FollowUp
     ClinicalT$time <- tV[it]
     ClinicalT$samples <- rownames(x0)
+    ClinicalT$samplesT <- paste0(rownames(x0),"_t_",it)
     Clinical <- rbind(Clinical,ClinicalT)
     GenesT[(1+(it-1)*ncol(x0)):(it*ncol(x0))] <- paste0(colnames(x0),"_t_",it)
     samplesT[(1+(it-1)*nrow(x0)):(it*nrow(x0))] <- paste0(rownames(x0),"_t_",it)
@@ -74,8 +75,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
   {
     lam1 <- lam1V[ilam1]
     lam2 <- gamma*lam1
-    fits <- list(fits,FitRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0))
-    
+    fits <- list.append(fits,FitRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0))
     beta <- fits[[ilam1]]$beta
     Intercept <- fits[[ilam1]]$Intercept
   }
