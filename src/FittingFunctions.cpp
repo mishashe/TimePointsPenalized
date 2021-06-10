@@ -161,7 +161,7 @@ List SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
       }
     }
   }
-  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("Intercept") = Intercept));
+  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept));
 }
 
 // Make one step for the t-group of a gene (soft threshold)
@@ -274,7 +274,7 @@ List GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
       }
     }
   }
-  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("Intercept") = Intercept));
+  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept));
 }
 
 // [[Rcpp::export]]
@@ -334,5 +334,5 @@ List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
     beta = out["beta"];
     Intercept = out["Intercept"];
   }
-  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("Intercept") = Intercept));
+  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept));
 }
