@@ -280,10 +280,15 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
 
 
 
-
-
 // [[Rcpp::export]]
-List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
+double FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
+              arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0,
+              arma::vec IndTFor0)
+{
+  return 1.75;
+}
+
+List aFitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                    arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0,
                    arma::vec IndTFor0)
 {
@@ -338,5 +343,5 @@ List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
     SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
   }
-  //return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("LL") = LL));
+  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("LL") = LL));
 }
