@@ -161,7 +161,7 @@ arma::vec SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, 
       }
     }
   }
-  return(beta);
+  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("Intercept") = Intercept));
 }
 
 // Make one step for the t-group of a gene (soft threshold)
@@ -274,7 +274,7 @@ arma::vec GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
       }
     }
   }
-  return(beta);
+  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("Intercept") = Intercept));
 }
 
 // [[Rcpp::export]]
@@ -327,8 +327,12 @@ List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   {
     LLprev = LL;
     betaPrev = beta;
-    beta = SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
-    beta = GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
+    List out = SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
+    beta = out[[0]];
+    Intercept = out[[1]];
+    List out = GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
+    beta = out[[0]];
+    Intercept = out[[1]];
   }
-  return(List::create(Named("beta") = beta , Named("Intercept") = Intercept));
+  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("Intercept") = Intercept));
 }
