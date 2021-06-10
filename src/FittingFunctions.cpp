@@ -277,8 +277,18 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
   return;
 }
 
+
+
 // [[Rcpp::export]]
 List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
+              arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0,
+              arma::vec IndTFor0)
+{
+  return List::create(Named("beta") = beta+1.2, Named("Intercept") = Intercept+1.5, Named("LL") = 0);
+}
+
+
+List FitRofffund(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                    arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0,
                    arma::vec IndTFor0)
 {
