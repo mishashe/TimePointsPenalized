@@ -331,6 +331,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 |
           any(sgn(beta) != sgn(betaPrev)))
   { 
+    Rcout<<LL<<std::endl;
     LLprev = LL;
     betaPrev = beta;
     Rcout<<LL<<std::endl;
