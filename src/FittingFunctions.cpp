@@ -73,8 +73,8 @@ void GetHessian(arma::mat x, arma::vec beta, arma::vec p, arma::vec y, double la
   return;
 }
 
-List SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
-                          arma::vec beta, double& Intercept, arma::vec w, arma::vec IndFor0,
+void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
+                          arma::vec& beta, double& Intercept, arma::vec w, arma::vec IndFor0,
                           arma::vec IndTFor0, arma::vec& M, double& LLmin)
 {
   int m = beta.size();
@@ -161,7 +161,7 @@ List SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
       }
     }
   }
-  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept));
+  return();
 }
 
 // Make one step for the t-group of a gene (soft threshold)
@@ -184,8 +184,8 @@ arma::vec glmnetSimple(arma::mat X, arma::vec Y, double lam1)
   return(beta);
 }
 
-List GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, 
-                     arma::vec beta, double& Intercept, arma::vec w, arma::vec IndFor0,
+void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, 
+                     arma::vec& beta, double& Intercept, arma::vec w, arma::vec IndFor0,
                      arma::vec IndTFor0, arma::vec& M, double& LLmin)
 {
   int m = beta.size();
@@ -274,7 +274,7 @@ List GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
       }
     }
   }
-  return(List::create(Named("beta") = beta, Named("Intercept") = Intercept));
+  return();
 }
 
 // [[Rcpp::export]]
@@ -327,12 +327,8 @@ List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   {
     LLprev = LL;
     betaPrev = beta;
-    List out = SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
-    beta = out(0);
-    Intercept = out(1);
-    List out = GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
-    beta = out(0);
-    Intercept = out(1);
+    SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
+    GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
   }
   return(List::create(Named("beta") = beta, Named("Intercept") = Intercept));
 }
