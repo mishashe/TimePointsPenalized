@@ -6,9 +6,9 @@
 
 using namespace Rcpp;
 
-// FitRound
-List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0, arma::vec IndTFor0);
-RcppExport SEXP _TimePointsPenalized_FitRound(SEXP x0SEXP, SEXP ySEXP, SEXP tVSEXP, SEXP lam1SEXP, SEXP lam2SEXP, SEXP betaSEXP, SEXP InterceptSEXP, SEXP wSEXP, SEXP IndFor0SEXP, SEXP IndTFor0SEXP) {
+// Fit
+List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0, arma::vec IndTFor0);
+RcppExport SEXP _TimePointsPenalized_Fit(SEXP x0SEXP, SEXP ySEXP, SEXP tVSEXP, SEXP lam1SEXP, SEXP lam2SEXP, SEXP betaSEXP, SEXP InterceptSEXP, SEXP wSEXP, SEXP IndFor0SEXP, SEXP IndTFor0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -22,13 +22,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type w(wSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type IndFor0(IndFor0SEXP);
     Rcpp::traits::input_parameter< arma::vec >::type IndTFor0(IndTFor0SEXP);
-    rcpp_result_gen = Rcpp::wrap(FitRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0));
+    rcpp_result_gen = Rcpp::wrap(Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_TimePointsPenalized_FitRound", (DL_FUNC) &_TimePointsPenalized_FitRound, 10},
+    {"_TimePointsPenalized_Fit", (DL_FUNC) &_TimePointsPenalized_Fit, 10},
     {NULL, NULL, 0}
 };
 

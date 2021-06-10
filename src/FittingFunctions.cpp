@@ -283,7 +283,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
 
 
 // [[Rcpp::export]]
-List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
+List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                    arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0,
                    arma::vec IndTFor0)
 {
