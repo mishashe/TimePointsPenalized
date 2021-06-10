@@ -306,7 +306,7 @@ List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
     }
   }
 
-  double LL=0;   return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("LL") = LL));
+  double LL=0;   return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("LL") = 0));
 
   for (int s=0;s<ns;s++) {
     LL += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
