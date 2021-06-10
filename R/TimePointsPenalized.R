@@ -20,9 +20,9 @@ NULL
 #' @param gamma prefactor of the second penalty term - differences between adjacent time points coefficients
 #' @param tV array of time points
 #' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
-#' @param Clinilal0 dataframe with clinical information (same order as rows of x0)
+#' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinilal0=data.frame(case_control0=y0))
+fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0))
 {     
   if (standardize) {
     for (i in 1:ncol(x0)) {
@@ -32,28 +32,30 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
   Intercept <- 0
   beta <- rep(0,ncol(x0)*length(tV))
   y <- c()
-  Clinilal <- data.frame()
+  Clinical <- data.frame()
   samplesT <- 1:(nrow(x0)*length(tV))
   GenesT <- rep("",ncol(x0)*length(tV))
-  Clinilal0$sample <- rownames(x0)
-  Clinilal0$time <- FollowUp
+  Clinical0$sample <- rownames(x0)
+  Clinical0$FollowUp <- FollowUp
   
   for (it in 1:length(tV))
   {
     t <- tV[it]
     case_controlT <- ifelse(FollowUp>t,0,ifelse(y0==1,1,-1))
     y <- c(y,case_controlT)
-    ClinilalT <- Clinilal0
-    ClinilalT$StatusT <- case_controlT
-    ClinilalT$FollowUp <- FollowUp
-    Clinilal <- rbind(Clinilal,ClinilalT)
+    ClinicalT <- Clinical0
+    ClinicalT$StatusT <- case_controlT
+    ClinicalT$FollowUp <- FollowUp
+    ClinicalT$time <- tV[it]
+    ClinicalT$samples <- rownames(x0)
+    Clinical <- rbind(Clinical,ClinicalT)
     GenesT[(1+(it-1)*ncol(x0)):(it*ncol(x0))] <- paste0(colnames(x0),"_t_",it)
     samplesT[(1+(it-1)*nrow(x0)):(it*nrow(x0))] <- paste0(rownames(x0),"_t_",it)
   }
   names(beta) <- GenesT
   names(y) <- samplesT
   Ind <- which(y %in% c(0,1))
-  Clinilal <- Clinilal[Ind,]
+  Clinical <- Clinical[Ind,]
   y <- y[Ind]
   
   IndFor0 <- c()
@@ -61,11 +63,11 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
   w <- y*0
   for (it in 1:length(tV))
   {
-    IndT <- which(Clinilal$time==tV[it])
+    IndT <- which(Clinical$time==tV[it])
     w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)
     w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
-    IndFor0 <- c(IndFor0,which(rownames(x0) %in% samples[IndT]))
-    IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% samples[IndT])*0+it)
+    IndFor0 <- c(IndFor0,which(rownames(x0) %in% Clinical$samples[IndT]))
+    IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
   }
   fits <- list()
   for (ilam1 in 1:length(lam1V))
