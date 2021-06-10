@@ -161,7 +161,7 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
       }
     }
   }
-  return();
+  return;
 }
 
 // Make one step for the t-group of a gene (soft threshold)
@@ -274,7 +274,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
       }
     }
   }
-  return();
+  return;
 }
 
 // [[Rcpp::export]]
