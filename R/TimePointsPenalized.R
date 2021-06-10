@@ -21,7 +21,6 @@ NULL
 #' @param tV array of time points
 #' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
 #' @param Clinilal0 dataframe with clinical information (same order as rows of x0)
-#' @param cores number of cores for parallelization (using foreach)
 #' @export
 fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinilal0=data.frame(case_control0=y0))
 {     
