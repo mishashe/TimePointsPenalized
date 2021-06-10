@@ -73,7 +73,7 @@ void GetHessian(arma::mat x, arma::vec beta, arma::vec p, arma::vec y, double la
   return;
 }
 
-arma::vec SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
+List SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                           arma::vec beta, double& Intercept, arma::vec w, arma::vec IndFor0,
                           arma::vec IndTFor0, arma::vec& M, double& LLmin)
 {
@@ -184,7 +184,7 @@ arma::vec glmnetSimple(arma::mat X, arma::vec Y, double lam1)
   return(beta);
 }
 
-arma::vec GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, 
+List GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, 
                      arma::vec beta, double& Intercept, arma::vec w, arma::vec IndFor0,
                      arma::vec IndTFor0, arma::vec& M, double& LLmin)
 {
