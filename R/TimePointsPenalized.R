@@ -78,9 +78,6 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
     fits <- list.append(fits,Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0))
     beta <- fits[[ilam1]]$beta
     Intercept <- fits[[ilam1]]$Intercept
-    print(ilam1)
-    print(fits[[ilam1]]$Intercept)
-    print(fits[[ilam1]]$LL)
   }
   return(fits)
 }       
