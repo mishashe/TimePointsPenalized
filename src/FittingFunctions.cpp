@@ -328,11 +328,11 @@ List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
     LLprev = LL;
     betaPrev = beta;
     List out = SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
-    beta = out["beta"];
-    Intercept = out["Intercept"];
+    beta = out[0];
+    Intercept = out[1];
     List out = GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
-    beta = out["beta"];
-    Intercept = out["Intercept"];
+    beta = out[0];
+    Intercept = out[1];
   }
   return(List::create(Named("beta") = beta, Named("Intercept") = Intercept));
 }
