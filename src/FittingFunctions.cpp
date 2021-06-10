@@ -324,7 +324,7 @@ List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   arma::vec betaPrev = beta;
   while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 |
           any(sgn(beta) != sgn(betaPrev)))
-  {
+  { 
     LLprev = LL;
     betaPrev = beta;
     Rcout<<LL<<std::endl;
