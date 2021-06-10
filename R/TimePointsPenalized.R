@@ -12,9 +12,8 @@
 #' @param Clinilal0 dataframe with clinical information (same order as rows of x0)
 #' @param cores number of cores for parallelization (using foreach)
 #' @export
-fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinilal0=data.frame(case_control0=y0), cores=1)
+fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinilal0=data.frame(case_control0=y0))
 {     
-  registerDoParallel(cores = cores)
   if (standardize) for (i in 1:ncol(x0)) x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
   Intercept <- 0
   beta <- rep(0,ncol(x0)*length(tV))
