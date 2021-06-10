@@ -98,7 +98,7 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   double F=0;
   for (int s=0;s<ns;s++) {
     F += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
-  }
+  } 
   double dIntercept = CalculateDeltaIntercept(y, p, w);
   Intercept = Intercept + dIntercept;
   M = M + dIntercept;
