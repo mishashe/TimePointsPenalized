@@ -331,10 +331,8 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 |
           any(sgn(beta) != sgn(betaPrev)))
   { 
-    Rcout<<" dfgdfgd "<<LL<<std::endl;
     LLprev = LL;
     betaPrev = beta;
-    Rcout<<LL<<std::endl;
     SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
   }
