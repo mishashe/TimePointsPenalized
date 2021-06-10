@@ -7,7 +7,7 @@
 using namespace Rcpp;
 
 // FitRound
-arma::vec FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0, arma::vec IndTFor0);
+List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0, arma::vec IndTFor0);
 RcppExport SEXP _TimePointsPenalized_FitRound(SEXP x0SEXP, SEXP ySEXP, SEXP tVSEXP, SEXP lam1SEXP, SEXP lam2SEXP, SEXP betaSEXP, SEXP InterceptSEXP, SEXP wSEXP, SEXP IndFor0SEXP, SEXP IndTFor0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
