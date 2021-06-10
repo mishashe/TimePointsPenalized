@@ -287,7 +287,6 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                    arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0,
                    arma::vec IndTFor0)
 {
-  return List::create(Named("beta") = beta+1.2, Named("Intercept") = Intercept+1.5, Named("LL") = 0);
   IndFor0 = IndFor0-1;
   IndTFor0 = IndTFor0-1;
   int nt = tV.size();
