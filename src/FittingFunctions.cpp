@@ -321,7 +321,7 @@ List FitRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
     }
   }
   double LLprev = 0;
-  arma::vec betaPrev = -beta;
+  arma::vec betaPrev = beta + 1;
   while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 |
           any(sgn(beta) != sgn(betaPrev)))
   {
