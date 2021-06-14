@@ -99,7 +99,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
     
     for (it in 1:length(tV))
     {
-      print(fit$beta)
+      print(1)
       beta <- fit$beta[(1:(dim(x0)[2]))+(it-1)*dim(x0)[2],1,drop=TRUE]
       print(2)
       Intercept <- fit$Intercept[it]
