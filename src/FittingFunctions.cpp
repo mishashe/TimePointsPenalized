@@ -104,7 +104,7 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
     std::vector<double> yT,pT,wT;
     for (int s=0;s<ns;s++) {
       if (IndTFor0(s)==it) {
-        Rcout<<y(IndFor0(s))<<std::endl;
+        if (y(IndFor0(s))==1) {Rcout<<y(IndFor0(s))<<std::endl;}
         yT.push_back(y(IndFor0(s)));
         pT.push_back(p(IndFor0(s)));
         wT.push_back(w(IndFor0(s)));
