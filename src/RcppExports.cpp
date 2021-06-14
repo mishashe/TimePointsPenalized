@@ -7,7 +7,7 @@
 using namespace Rcpp;
 
 // Fit
-List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0, arma::vec IndTFor0);
+List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, arma::vec beta, arma::vec Intercept, arma::vec w, arma::vec IndFor0, arma::vec IndTFor0);
 RcppExport SEXP _TimePointsPenalized_Fit(SEXP x0SEXP, SEXP ySEXP, SEXP tVSEXP, SEXP lam1SEXP, SEXP lam2SEXP, SEXP betaSEXP, SEXP InterceptSEXP, SEXP wSEXP, SEXP IndFor0SEXP, SEXP IndTFor0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -18,7 +18,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type lam1(lam1SEXP);
     Rcpp::traits::input_parameter< double >::type lam2(lam2SEXP);
     Rcpp::traits::input_parameter< arma::vec >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< double >::type Intercept(InterceptSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Intercept(InterceptSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type w(wSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type IndFor0(IndFor0SEXP);
     Rcpp::traits::input_parameter< arma::vec >::type IndTFor0(IndTFor0SEXP);

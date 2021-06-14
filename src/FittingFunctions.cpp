@@ -74,7 +74,7 @@ void GetHessian(arma::mat x, arma::vec beta, arma::vec p, arma::vec y, double la
 }
 
 void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
-                          arma::vec& beta, double& Intercept, arma::vec w, arma::vec IndFor0,
+                          arma::vec& beta, arma::vec& Intercept, arma::vec w, arma::vec IndFor0,
                           arma::vec IndTFor0, arma::vec& M, double& LLmin)
 {
   int m = beta.size();
@@ -99,9 +99,25 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   for (int s=0;s<ns;s++) {
     F += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   } 
-  double dIntercept = CalculateDeltaIntercept(y, p, w);
-  Intercept = Intercept + dIntercept;
-  M = M + dIntercept;
+  // Update group of intercepts
+  for (int it=0;it<nt;it++){
+    std::vector<double> yT,pT,wT;
+    
+    for (int s=0;s<ns;s++) {
+      if (IndTFor0(s)==it) {
+        yT.push_back(y(IndFor0(s)));
+        pT.push_back(p(IndFor0(s)));
+        wT.push_back(w(IndFor0(s)));
+        }
+    }
+    double dIntercept = CalculateDeltaIntercept(yT, pT, wT);
+    Intercept(it) = Intercept(it) + dIntercept;
+    for (int s=0;s<ns;s++) {
+      if (IndTFor0(s)==it) {
+        M(s) = M(s) + dIntercept;
+      }
+    }
+  }
   p = 1.0/(1.0+exp(-M)); for (int s=0;s<ns;s++) {if (p(s) > 1.0-1e-5) p(s)=1.0-1e-5; else if (p(s)<1.0e-5) p(s)=1.0e-5;}
   for (int s=0;s<ns;s++) LLmin += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   LLmin += - F;
@@ -185,7 +201,7 @@ arma::vec glmnetSimple(arma::mat X, arma::vec Y, double lam1)
 }
 
 void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, 
-                     arma::vec& beta, double& Intercept, arma::vec w, arma::vec IndFor0,
+                     arma::vec& beta, arma::vec& Intercept, arma::vec w, arma::vec IndFor0,
                      arma::vec IndTFor0, arma::vec& M, double& LLmin)
 {
   int m = beta.size();
@@ -213,9 +229,25 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
   for (int s=0;s<ns;s++) {
     F += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   }
-  double dIntercept = CalculateDeltaIntercept(y, p, w);
-  Intercept = Intercept + dIntercept;
-  M = M + dIntercept;
+  // Update group of intercepts
+  for (int it=0;it<nt;it++){
+    std::vector<double> yT,pT,wT;
+    
+    for (int s=0;s<ns;s++) {
+      if (IndTFor0(s)==it) {
+        yT.push_back(y(IndFor0(s)));
+        pT.push_back(p(IndFor0(s)));
+        wT.push_back(w(IndFor0(s)));
+      }
+    }
+    double dIntercept = CalculateDeltaIntercept(yT, pT, wT);
+    Intercept(it) = Intercept(it) + dIntercept;
+    for (int s=0;s<ns;s++) {
+      if (IndTFor0(s)==it) {
+        M(s) = M(s) + dIntercept;
+      }
+    }
+  }
   p = 1.0/(1.0+exp(-M));
   for (int s=0;s<ns;s++) {if (p(s) > 1.0-1e-5) p(s)=1.0-1e-5; else if (p(s)<1.0e-5) p(s)=1.0e-5;}
   for (int s=0;s<ns;s++) {
@@ -277,14 +309,9 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
   return;
 }
 
-
-
-
-
-
 // [[Rcpp::export]]
 List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
-                   arma::vec beta, double Intercept, arma::vec w, arma::vec IndFor0,
+                   arma::vec beta, arma::vec Intercept, arma::vec w, arma::vec IndFor0,
                    arma::vec IndTFor0)
 {
   IndFor0 = IndFor0-1;
@@ -295,10 +322,14 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   int ns = y.size();
   int m0 = m/nt;
   arma::vec M(ns);
-  M.fill(Intercept);
   for (int s=0;s<ns;s++) {
-      for (int g=0;g<m0;g++) {
-          M(s) = M(s) + x0(IndFor0(s),g) * beta(g+IndTFor0(s)*m0);
+    for (int it=0;it<nt;it++) {
+      if (IndTFor0(s)==it) {
+        M(s) = M(s) + Intercept(it);
+      }
+    }
+    for (int g=0;g<m0;g++) {
+        M(s) = M(s) + x0(IndFor0(s),g) * beta(g+IndTFor0(s)*m0);
     }
   }
   arma::vec p(ns);
