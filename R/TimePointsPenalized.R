@@ -89,6 +89,8 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
     fits[[it]] <- list()
     fits[[it]]$beta <- matrix(0,nrow=dim(x0)[2],ncol=0)
     fits[[it]]$Intercept <- c()
+    fits[[it]]$lambda <- c()
+    fits[[it]]$gamma <- c()
   }
   for (ilam1 in 1:length(lam1V))
   {
@@ -104,6 +106,8 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
       IndT <- which(Clinical$time==tV[it])
       fits[[it]]$beta <- cbind(betaOut,fits[[it]]$beta)
       fits[[it]]$Intercept <- c(InterceptOut,fits[[it]]$Intercept)
+      fits[[it]]$lambda <- c(lam1,fits[[it]]$lambda)
+      fits[[it]]$gamma <- c(gamma,fits[[it]]$gamma)
     }
   }
   return(fits)
@@ -186,3 +190,4 @@ fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
   }
   return(fits)
 }       
+
