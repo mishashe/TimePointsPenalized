@@ -106,13 +106,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
       fits[[it]]$Intercept <- c(fits[[it]]$Intercept,Intercept)
     }
   }
-  
-  for (it in 1:length(tV))
-  {
-    IndT <- which(Clinical$time==tV[it])
-    
-  }
-  return(fitsT)
+  return(fits)
 }       
 
 #' Fit lasso with non-penalized differences between adjacent time points coefficients using glmnet
