@@ -3,4 +3,3 @@
 export(fitTimePointsNonPenalized)
 export(fitTimePointsPenalized)
 useDynLib(TimePointsPenalized, .registration=TRUE)
-useDynLib(fitTimePointsNonPenalized, .registration=TRUE)
