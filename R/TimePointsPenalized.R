@@ -109,6 +109,27 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
   return(fits)
 }       
 
+
+
+
+
+
+
+
+#' fitTimePointsNonPenalized: Lasso with non-penalized differences between adjacent time points 
+#'
+#' 
+#' @section Mypackage functions:
+#' A package to fit lasso without penalized differences between adjacent time points coefficients.
+#'
+#' @docType package
+#' @name fitTimePointsNonPenalized
+#' @useDynLib fitTimePointsNonPenalized, .registration=TRUE
+NULL
+
+
+
+
 #' Fit lasso with non-penalized differences between adjacent time points coefficients using glmnet
 #'
 #' @param y0 case/control vector (no time iformation - "naive" approach)
