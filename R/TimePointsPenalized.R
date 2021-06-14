@@ -105,6 +105,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
       fits[[it]]$beta <- cbind(fits[[it]]$beta,beta)
       fits[[it]]$Intercept <- c(fits[[it]]$Intercept,Intercept)
     }
+    print(3)
   }
   
   for (it in 1:length(tV))
