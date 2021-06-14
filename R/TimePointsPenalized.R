@@ -157,7 +157,6 @@ fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     GenesT[(1+(it-1)*ncol(x0)):(it*ncol(x0))] <- paste0(colnames(x0),"_t_",it)
     samplesT[(1+(it-1)*nrow(x0)):(it*nrow(x0))] <- paste0(rownames(x0),"_t_",it)
   }
-  names(beta) <- GenesT
   names(y) <- samplesT
   Ind <- which(y %in% c(0,1))
   Clinical <- Clinical[Ind,]
