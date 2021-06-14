@@ -1,27 +1,27 @@
-#' TimePointsPenalized: Lasso with penalized differences between adjacent time points 
-#'
-#' 
-#' @section Mypackage functions:
-#' A package to fit lasso with penalized differences between adjacent time points coefficients.
-#'
-#' @docType package
-#' @name TimePointsPenalized
-#' @useDynLib TimePointsPenalized, .registration=TRUE
+##' TimePointsPenalized: Lasso with penalized differences between adjacent time points 
+##'
+##' 
+##' @section Mypackage functions:
+##' A package to fit lasso with penalized differences between adjacent time points coefficients.
+##'
+##' @docType package
+##' @name TimePointsPenalized
+##' @useDynLib TimePointsPenalized, .registration=TRUE
 NULL
 
 
 
-#' Fit lasso with penalized differences between adjacent time points coefficients 
-#'
-#' @param y0 case/control vector (no time iformation - "naive" approach)
-#' @param x0 gene expression matrix (rows-samples by columns-genes)
-#' @param FollowUp follow-up times (recurrence time for recurrences and follow-up for patients with no recurrences)
-#' @param lam1V array of lasso penalty prefactor
-#' @param gamma prefactor of the second penalty term - differences between adjacent time points coefficients
-#' @param tV array of time points
-#' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
-#' @param Clinical0 dataframe with clinical information (same order as rows of x0)
-#' @export
+##' Fit lasso with penalized differences between adjacent time points coefficients 
+##'
+##' @param y0 case/control vector (no time iformation - "naive" approach)
+##' @param x0 gene expression matrix (rows-samples by columns-genes)
+##' @param FollowUp follow-up times (recurrence time for recurrences and follow-up for patients with no recurrences)
+##' @param lam1V array of lasso penalty prefactor
+##' @param gamma prefactor of the second penalty term - differences between adjacent time points coefficients
+##' @param tV array of time points
+##' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
+##' @param Clinical0 dataframe with clinical information (same order as rows of x0)
+##' @export
 fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0))
 {     
   if (standardize) {
@@ -116,31 +116,31 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
 
 
 
-#' fitTimePointsNonPenalized: Lasso with non-penalized differences between adjacent time points 
-#'
-#' 
-#' @section Mypackage functions:
-#' A package to fit lasso without penalized differences between adjacent time points coefficients.
-#'
-#' @docType package
-#' @name fitTimePointsNonPenalized
-#' @useDynLib fitTimePointsNonPenalized, .registration=TRUE
+##' fitTimePointsNonPenalized: Lasso with non-penalized differences between adjacent time points 
+##'
+##' 
+##' @section Mypackage functions:
+##' A package to fit lasso without penalized differences between adjacent time points coefficients.
+##'
+##' @docType package
+##' @name fitTimePointsNonPenalized
+##' @useDynLib fitTimePointsNonPenalized, .registration=TRUE
 NULL
 
 
 
 
-#' Fit lasso with non-penalized differences between adjacent time points coefficients using glmnet
-#'
-#' @param y0 case/control vector (no time iformation - "naive" approach)
-#' @param x0 gene expression matrix (rows-samples by columns-genes)
-#' @param FollowUp follow-up times (recurrence time for recurrences and follow-up for patients with no recurrences)
-#' @param lam1V array of lasso penalty prefactor
-#' @param gamma prefactor of the second penalty term - differences between adjacent time points coefficients
-#' @param tV array of time points
-#' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
-#' @param Clinical0 dataframe with clinical information (same order as rows of x0)
-#' @export
+##' Fit lasso with non-penalized differences between adjacent time points coefficients using glmnet
+##'
+##' @param y0 case/control vector (no time iformation - "naive" approach)
+##' @param x0 gene expression matrix (rows-samples by columns-genes)
+##' @param FollowUp follow-up times (recurrence time for recurrences and follow-up for patients with no recurrences)
+##' @param lam1V array of lasso penalty prefactor
+##' @param gamma prefactor of the second penalty term - differences between adjacent time points coefficients
+##' @param tV array of time points
+##' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
+##' @param Clinical0 dataframe with clinical information (same order as rows of x0)
+##' @export
 fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0))
 {     
   if (standardize) {
