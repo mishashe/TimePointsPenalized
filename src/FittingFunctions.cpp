@@ -102,9 +102,9 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   // Update group of intercepts
   for (int it=0;it<nt;it++){
     std::vector<double> yT,pT,wT;
-    
     for (int s=0;s<ns;s++) {
       if (IndTFor0(s)==it) {
+        Rcout<<y(IndFor0(s))<<std::endl;
         yT.push_back(y(IndFor0(s)));
         pT.push_back(p(IndFor0(s)));
         wT.push_back(w(IndFor0(s)));
