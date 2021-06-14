@@ -42,6 +42,18 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
   {
     t <- tV[it]
     case_controlT <- ifelse(FollowUp>t,0,ifelse(y0==1,1,-1))
+    if (sum(case_controlT==0)<2)
+    {
+      print(paste0("Not enough controls for t=",t))
+      print(table(case_controlT))
+      return(NULL)
+    }
+    if (sum(case_controlT==1)<2)
+    {
+      print(paste0("Not enough cases for t=",t))
+      print(table(case_controlT))
+      return(NULL)
+    }
     y <- c(y,case_controlT)
     ClinicalT <- Clinical0
     ClinicalT$StatusT <- case_controlT
@@ -70,16 +82,35 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
     IndFor0 <- c(IndFor0,which(rownames(x0) %in% Clinical$samples[IndT]))
     IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
   }
-  fits <- list()
+  
+  fits <- list(list())
+  for (it in 1:length(tV))
+  {
+    fits[[it]] <- list()
+    fits[[it]]$beta <- matrix(0,nrow=dim(x0)[2],ncol=0)
+    fits[[it]]$Intercept <- c()
+  }
   for (ilam1 in 1:length(lam1V))
   {
     lam1 <- lam1V[ilam1]
     lam2 <- gamma*lam1
-    fits <- list.append(fits,Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0))
-    beta <- fits[[ilam1]]$beta
-    Intercept <- fits[[ilam1]]$Intercept
+    fit <- Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0)
+    for (it in 1:length(tV))
+    {
+      beta <- Fit$beta[(1:dim(x0)[2])+(it-1)*dim(x0)[2]]
+      Intercept <- Fit$Intercept[it]
+      IndT <- which(Clinical$time==tV[it])
+      fits[[it]]$beta <- cbind(fits[[it]]$beta,beta)
+      fits[[it]]$Intercept <- c(fits[[it]]$Intercept,Intercept)
+    }
   }
-  return(fits)
+  
+  for (it in 1:length(tV))
+  {
+    IndT <- which(Clinical$time==tV[it])
+    
+  }
+  return(fitsT)
 }       
 
 #' Fit lasso with non-penalized differences between adjacent time points coefficients using glmnet
@@ -100,8 +131,7 @@ fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
       x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
     }
   }
-  Intercept <- 0
-  beta <- rep(0,ncol(x0)*length(tV))
+
   y <- c()
   Clinical <- data.frame()
   samplesT <- 1:(nrow(x0)*length(tV))
@@ -142,13 +172,15 @@ fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
   }
   fits <- list()
-  for (ilam1 in 1:length(lam1V))
+  
+  for (it in 1:length(tV))
   {
-    lam1 <- lam1V[ilam1]
-    lam2 <- gamma*lam1
-    fits <- list.append(fits,Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0))
-    beta <- fits[[ilam1]]$beta
-    Intercept <- fits[[ilam1]]$Intercept
+    IndT <- which(Clinical$time==tV[it])
+    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)
+    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
+    fit <- glmnet(x0[which(rownames(x0) %in% Clinical$samples[IndT]),], y[IndT],
+                  lambda=lam1V, standardize = FALSE, intercept = TRUE, weights=w[IndT],  family = "binomial", alpha=1)
+    fits <- list.append(fits,fit)
   }
   return(fits)
 }       
