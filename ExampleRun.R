@@ -266,7 +266,7 @@ beta <- rep(0,nGenes*length(tV))
 tV <- seq(4,7,1)*12
 FollowUp <- 2*12 + (8-2)*12*runif(nSamples)
 lam1V <- 10^seq(-1.0,-4.5,-0.025)
-gamma <- 10
+gamma <- 0.001
 rownames(x0) <- paste0("S",1:nSamples)
 colnames(x0) <- paste0("G",1:nGenes)
 fits <- fitTimePointsPenalized(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0))

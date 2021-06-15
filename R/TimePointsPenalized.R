@@ -82,7 +82,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
     IndFor0 <- c(IndFor0,which(rownames(x0) %in% Clinical$samples[IndT]))
     IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
   }
-  
+  w <- w/sum(w)
   fits <- list(list())
   for (it in 1:length(tV))
   {
@@ -177,6 +177,7 @@ fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     IndFor0 <- c(IndFor0,which(rownames(x0) %in% Clinical$samples[IndT]))
     IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
   }
+  w <- w/sum(w)
   fits <- list()
   
   for (it in 1:length(tV))
