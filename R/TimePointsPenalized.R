@@ -79,6 +79,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
     IndT <- which(Clinical$time==tV[it])
     w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)
     w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
+    w[IndT] <- w[IndT]/sum(w[IndT])
     IndFor0 <- c(IndFor0,which(rownames(x0) %in% Clinical$samples[IndT]))
     IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
   }
@@ -166,20 +167,8 @@ fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
   Clinical <- Clinical[Ind,]
   y <- y[Ind]
   
-  IndFor0 <- c()
-  IndTFor0 <- c()
   w <- y*0
-  for (it in 1:length(tV))
-  {
-    IndT <- which(Clinical$time==tV[it])
-    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)
-    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
-    IndFor0 <- c(IndFor0,which(rownames(x0) %in% Clinical$samples[IndT]))
-    IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
-  }
-  w <- w/sum(w)
   fits <- list()
-  
   for (it in 1:length(tV))
   {
     IndT <- which(Clinical$time==tV[it])
