@@ -269,17 +269,17 @@ lam1V <- 10^seq(-1.0,-4.5,-0.025)
 gamma <- 0.0000001
 rownames(x0) <- paste0("S",1:nSamples)
 colnames(x0) <- paste0("G",1:nGenes)
-fits <- fitTimePointsPenalized(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0))
 fits0 <- fitTimePointsNonPenalized(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0))
+fits <- fitTimePointsPenalized(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), fits0=fits0)
 
 
-Ind <- which(fits[[1]]$beta[,50]!=0)
+Ind <- which(fits[[1]]$beta[,20]!=0)
 length(Ind)
-Ind0 <- which(fits0[[1]]$beta[,50]!=0)
+Ind0 <- which(fits0[[1]]$beta[,20]!=0)
 length(Ind0)
 
-fits[[1]]$beta[,25][Ind]
-fits0[[1]]$beta[,1][Ind0]
+fits[[1]]$beta[,10][Ind]
+fits0[[1]]$beta[,10][Ind0]
 
 
 ###############################################################################################################################

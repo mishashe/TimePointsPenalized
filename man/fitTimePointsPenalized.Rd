@@ -12,7 +12,8 @@ fitTimePointsPenalized(
   gamma,
   tV,
   standardize = TRUE,
-  Clinical0 = data.frame(case_control0 = y0)
+  Clinical0 = data.frame(case_control0 = y0),
+  fits0 = NULL
 )
 }
 \arguments{

@@ -22,13 +22,15 @@ NULL
 #' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0))
+fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), fits0=NULL)
 {     
   if (standardize) {
     for (i in 1:ncol(x0)) {
       x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
     }
   }
+  
+
   Intercept <- rep(0,length(tV))
   beta <- rep(0,ncol(x0)*length(tV))
   y <- c()
@@ -97,6 +99,14 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
   {
     lam1 <- lam1V[ilam1]/length(tV)
     lam2 <- gamma*lam1
+    if (!is.null(fits0))
+    {
+      for (it in 1:length(tV))
+      {
+        beta[(1:(dim(x0)[2]))+(it-1)*dim(x0)[2]] <- fits0[[it]]$beta[,ilam1,drop=TRUE]
+        Intercept[it] <- fits0[[it]]$a0[ilam1]
+      }
+    }
     fit <- Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0)
     beta <- fit$beta
     Intercept <- fit$Intercept
