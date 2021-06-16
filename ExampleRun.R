@@ -233,7 +233,7 @@ detach("package:TimePointsPenalized", unload=TRUE)
 remove.packages("TimePointsPenalized")
 
 
-library(roxygen3)
+library(roxygen2)
 setwd("~/Documents/Development/TimePointsPenalized")
 usethis::use_rcpp()
 Rcpp::compileAttributes(pkgdir = ".", verbose = TRUE)
