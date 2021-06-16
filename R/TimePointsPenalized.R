@@ -149,6 +149,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     print(fold)
     Ind <- which(fold!=folds)
     fits <- fitTimePointsPenalized(y0[Ind], x0[Ind,], FollowUp[Ind], lam1V, gamma, tV, standardize, Clinical0=data.frame(case_control0=y0[Ind]), startWithGlmnet)
+    data <- data.frame()
     for (it in 1:length(tV))
     {
       status <- ifelse(FollowUp[-Ind] > tV[it],0,ifelse(y0[-Ind]==1,1,-1))
@@ -162,7 +163,8 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
         dataT <- cbind(dataT,preds)
       }
     }
-    return(dataT)
+    data <- rbind(data,dataT)
+    return(data)
   }
   return(dataCV)
 }

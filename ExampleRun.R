@@ -259,7 +259,7 @@ remove.packages("TimePointsPenalized")
 install_github("mishashe/TimePointsPenalized", force=TRUE)
 library(TimePointsPenalized)
 library(doParallel)
-registerDoParallel(10)
+registerDoParallel(40)
 nSamples <- 200
 nGenes <- 400
 tV <- seq(2,8,1)*12
