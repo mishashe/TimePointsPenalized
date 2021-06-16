@@ -146,6 +146,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
 {
   dataCV <- foreach (fold = unique(folds), .combine=rbind, .inorder=FALSE) %dopar%
   {
+    print(fold)
     Ind <- which(fold!=folds)
     fits <- fitTimePointsPenalized(y0[Ind], x0[Ind,], FollowUp[Ind], lam1V, gamma, tV, standardize, Clinical0=data.frame(case_control0=y0[Ind]), startWithGlmnet)
     for (it in 1:length(tV))

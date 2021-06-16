@@ -246,9 +246,9 @@ system("git commit -m 'debug' ")
 system("git push")
 
 
-system("export OPENBLAS_NUM_THREADS=40")
-system("export GOTO_NUM_THREADS=40")
-system("export OMP_NUM_THREADS=40")
+system("export OPENBLAS_NUM_THREADS=1")
+system("export GOTO_NUM_THREADS=1")
+system("export OMP_NUM_THREADS=1")
 library(rlist)
 library(Rcpp)
 library(foreach)
@@ -258,6 +258,8 @@ detach("package:TimePointsPenalized", unload=TRUE)
 remove.packages("TimePointsPenalized")
 install_github("mishashe/TimePointsPenalized", force=TRUE)
 library(TimePointsPenalized)
+library(doParallel)
+registerDoParallel(10)
 nSamples <- 200
 nGenes <- 400
 tV <- seq(2,8,1)*12
