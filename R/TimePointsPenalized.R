@@ -183,8 +183,8 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     weightsT <- (yT==0)/sum(yT==0) + (yT==1)/sum(yT==1)
     for (ilam1 in 1:length(lam1V))
     {
-      logLike[it,ilam1V] <- sum(weightsT*yT*log(predsT[,ilam1]))
-      AUC[it,ilam1V] <- auc(yT, predsT[,ilam1], direction="<")[1]
+      logLike[it,ilam1] <- sum(weightsT*yT*log(predsT[,ilam1]))
+      AUC[it,ilam1] <- auc(yT, predsT[,ilam1], direction="<")[1]
     }
   }
   if (whatToMaximize=="auc")
