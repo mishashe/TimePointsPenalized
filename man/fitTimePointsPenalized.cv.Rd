@@ -14,7 +14,8 @@ fitTimePointsPenalized.cv(
   standardize = TRUE,
   Clinical0 = data.frame(case_control0 = y0),
   startWithGlmnet = FALSE,
-  folds
+  folds,
+  whatToMaximize = "auc"
 )
 }
 \arguments{

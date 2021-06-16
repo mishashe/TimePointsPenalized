@@ -142,7 +142,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
 #' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE,folds)
+fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE,folds,whatToMaximize="auc")
 {
   dataCV <- foreach (fold = unique(folds), .combine=rbind, .inorder=FALSE) %dopar%
   {
@@ -165,7 +165,39 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     }
     return(data)
   }
-  return(dataCV)
+  #rename colnames of different lambda predictions
+  colnames_lam <- paste0("lam1_",1:length(lam1V))
+  colnames(dataCV)[1:length(lam1V) + 4] <- colnames_lam
+  cv.results <- list(dataCV=dataCV)
+  logLike <- matrix(0,nrow=length(tV),ncol=length(lam1V))
+  colnames(logLike) <- colnames_lam
+  rownames(logLike) <- paste0("TimePoint_",1:length(tV))
+  AUC <- matrix(0,nrow=length(tV),ncol=length(lam1V))
+  colnames(AUC) <- colnames_lam
+  rownames(AUC) <- paste0("TimePoint_",1:length(tV))
+  for (it in 1:length(tV))
+  {
+    IndT <- which(dataCV$timepoint==tV[it])
+    predsT <- dataCV[IndT,colnames_lam]
+    yT <- dataCV[IndT,"status"]
+    weightsT <- (yT==0)/sum(yT==0) + (yT==1)/sum(yT==1)
+    for (ilam1 in 1:length(lam1V))
+    {
+      logLike[it,ilam1V] <- sum(weightsT*yT*log(predsT[,ilam1]))
+      AUC[it,ilam1V] <- auc(yT, predsT[,ilam1], direction="<")[1]
+    }
+  }
+  if (whatToMaximize=="auc")
+  {
+    FigureMerit <- colMeans(AUC)
+  }
+  else if (whatToMaximize=="loglikelihood")
+  {
+    FigureMerit <- colMeans(logLike)
+  }
+  IndOptimum <- which.max(FigureMerit)
+  OptimumLam1 <- lam1V[IndOptimum]
+  return(list(dataCV=dataCV, logLike=logLike, AUC=AUC, OptimumLam1=lam1V[IndOptimum], gamma=gamma))
 }
 
 
