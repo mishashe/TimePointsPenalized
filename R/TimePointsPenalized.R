@@ -162,8 +162,8 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
         preds <- 1/(1+exp(-x0[-Ind,] %*% beta - Intercept))
         dataT <- cbind(dataT,preds)
       }
+      data <- rbind(data,dataT)
     }
-    data <- rbind(data,dataT)
     return(data)
   }
   return(dataCV)
