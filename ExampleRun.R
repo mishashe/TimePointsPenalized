@@ -270,6 +270,8 @@ gamma <- 0.0000001
 rownames(x0) <- paste0("S",1:nSamples)
 colnames(x0) <- paste0("G",1:nGenes)
 fits <- fitTimePointsPenalized(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), startWithGlmnet=TRUE)
+folds <- 1:nrow(x0)
+cv <- fitTimePointsPenalized.cv(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE,folds)
 
 
 Ind <- which(fits[[1]]$beta[,20]!=0)
