@@ -22,8 +22,15 @@ NULL
 #' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), fits0=NULL)
-{     
+fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE)
+{  
+  
+  if (startWithGlmnet) {
+    fits0 <- fitTimePointsNonPenalized(y0, x0, FollowUp, lam1V, gamma, tV, standardize, Clinical0=data.frame(case_control0=y0))
+  }
+  else {
+    fits0 <-  NULL
+  }
   if (standardize) {
     for (i in 1:ncol(x0)) {
       x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
@@ -124,8 +131,40 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
   return(fits)
 }       
 
-
-
+#' CV with penalized differences between adjacent time points coefficients 
+#'
+#' @param y0 case/control vector (no time iformation - "naive" approach)
+#' @param x0 gene expression matrix (rows-samples by columns-genes)
+#' @param FollowUp follow-up times (recurrence time for recurrences and follow-up for patients with no recurrences)
+#' @param lam1V array of lasso penalty prefactor
+#' @param gamma prefactor of the second penalty term - differences between adjacent time points coefficients
+#' @param tV array of time points
+#' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
+#' @param Clinical0 dataframe with clinical information (same order as rows of x0)
+#' @export
+fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE,folds)
+{
+  dataCV <- foreach (fold = unique(folds), .combine=rbind, .inorder=FALSE) %dopar%
+  {
+    Ind <- which(fold!=folds)
+    fits <- fitTimePointsPenalized(y0[Ind], x0[Ind,], FollowUp, lam1V, gamma, tV, standardize, Clinical0=data.frame(case_control0=y0), startWithGlmnet)
+    for (it in 1:length(tV))
+    {
+      status <- ifelse(FollowUp[-Ind] > tV[it],0,ifelse(y0[-Ind]==1,1,-1))
+      type <- y0[-Ind]
+      dataT <- data.frame(status=status,type=type)
+      for (ilam1 in 1:length(lam1V))
+      {
+        beta <- fits[[it]]$beta[,ilam1]
+        Intercept <- fits[[it]]$Intercept[ilam1]
+        preds <- 1/(1+exp(-x0[-Ind,] %*% beta - Intercept))
+        dataT <- cbind(dataT,preds)
+      }
+    }
+    return(dataT)
+  }
+  return(dataCV)
+}
 
 
 

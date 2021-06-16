@@ -2,4 +2,5 @@
 
 export(fitTimePointsNonPenalized)
 export(fitTimePointsPenalized)
+export(fitTimePointsPenalized.cv)
 useDynLib(TimePointsPenalized, .registration=TRUE)
