@@ -153,8 +153,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     for (it in 1:length(tV))
     {
       status <- ifelse(FollowUp[-Ind] > tV[it],0,ifelse(y0[-Ind]==1,1,-1))
-      type <- y0[-Ind]
-      dataT <- data.frame(status=status,type=type)
+      dataT <- data.frame(sample=names(y0)[-Ind], status=status,type=y0[-Ind], timepoint=tV[it], FollowUp=FollowUp[-Ind])
       for (ilam1 in 1:length(lam1V))
       {
         beta <- fits[[it]]$beta[,ilam1]
