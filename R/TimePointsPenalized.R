@@ -154,6 +154,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     {
       status <- ifelse(FollowUp[-Ind] > tV[it],0,ifelse(y0[-Ind]==1,1,-1))
       dataT <- data.frame(sample=rownames(x0)[-Ind], status=status,type=y0[-Ind], timepoint=tV[it], FollowUp=FollowUp[-Ind])
+      NumberColumns <- ncol(dataT)
       for (ilam1 in 1:length(lam1V))
       {
         beta <- fits[[it]]$beta[,ilam1]
@@ -167,7 +168,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
   }
   #rename colnames of different lambda predictions
   colnames_lam <- paste0("lam1_",1:length(lam1V))
-  colnames(dataCV)[1:length(lam1V) + 4] <- colnames_lam
+  colnames(dataCV)[1:length(lam1V) + NumberColumns] <- colnames_lam
   cv.results <- list(dataCV=dataCV)
   logLike <- matrix(0,nrow=length(tV),ncol=length(lam1V))
   colnames(logLike) <- colnames_lam
