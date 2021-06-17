@@ -166,7 +166,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     return(data)
   }
   #rename colnames of different lambda predictions
-  NumberColumns <- which(colnames(dataCV) =="preds")[1]-1
+  NumberColumns <- 5
   colnames_lam <- paste0("lam1_",1:length(lam1V))
   colnames(dataCV)[1:length(lam1V) + NumberColumns] <- colnames_lam
   cv.results <- list(dataCV=dataCV)
