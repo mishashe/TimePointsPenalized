@@ -89,10 +89,10 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   double LL;
   p = 1.0/(1.0+exp(-M));
   for (int s=0;s<ns;s++) {
-    if (p(s) > 1.0-1e-5) {
-      p(s)=1.0-1e-5;
-    } else if (p(s)<1.0e-5) {
-      p(s)=1.0e-5;
+    if (p(s) > 1.0-1e-2) {
+      p(s)=1.0-1e-2;
+    } else if (p(s)<1.0e-2) {
+      p(s)=1.0e-2;
     }
   }
   double F=0;
@@ -118,7 +118,7 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
       }
     }
   }
-  p = 1.0/(1.0+exp(-M)); for (int s=0;s<ns;s++) {if (p(s) > 1.0-1e-5) p(s)=1.0-1e-5; else if (p(s)<1.0e-5) p(s)=1.0e-5;}
+  p = 1.0/(1.0+exp(-M)); for (int s=0;s<ns;s++) {if (p(s) > 1.0-1e-2) p(s)=1.0-1e-2; else if (p(s)<1.0e-2) p(s)=1.0e-2;}
   for (int s=0;s<ns;s++) LLmin += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   LLmin += - F;
   for (int g=0;g<m0;g++)
@@ -144,10 +144,10 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
         for (int s=0;s<ns;s++) Mnew(s) += x0G(s,it) * (betaNew-betaOld);
         arma::vec pnew = 1.0/(1.0+exp(-Mnew));
         for (int s=0;s<ns;s++) {
-          if (pnew(s) > 1.0-1e-5) {
-            pnew(s)=1.0-1e-5;
-          } else if (pnew(s)<1.0e-5) {
-            pnew(s)=1.0e-5;
+          if (pnew(s) > 1.0-1e-2) {
+            pnew(s)=1.0-1e-2;
+          } else if (pnew(s)<1.0e-2) {
+            pnew(s)=1.0e-2;
           }
         }
         beta(g+it*m0) = betaNew;
@@ -219,10 +219,10 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
   
   p = 1.0/(1.0+exp(-M));
   for (int s=0;s<ns;s++) {
-    if (p(s) > 1.0-1.0e-5) {
-      p(s)=1.0-1.0e-5;
-    } else if (p(s)<1.0e-5) {
-      p(s)=1.0e-5;
+    if (p(s) > 1.0-1.0e-2) {
+      p(s)=1.0-1.0e-2;
+    } else if (p(s)<1.0e-2) {
+      p(s)=1.0e-2;
     }
   }
   double F=0;
@@ -249,7 +249,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
     }
   }
   p = 1.0/(1.0+exp(-M));
-  for (int s=0;s<ns;s++) {if (p(s) > 1.0-1e-5) p(s)=1.0-1e-5; else if (p(s)<1.0e-5) p(s)=1.0e-5;}
+  for (int s=0;s<ns;s++) {if (p(s) > 1.0-1.0e-2) p(s)=1.0-1.0e-2; else if (p(s)<1.0e-2) p(s)=1.0e-2;}
   for (int s=0;s<ns;s++) {
     LLmin += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   }
@@ -272,10 +272,10 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
       arma::vec Mnew = M + x0G * (betaNew-betaOld);
       arma::vec pnew = 1.0/(1.0+exp(-Mnew));
       for (int s=0;s<ns;s++) {
-        if (pnew(s) > 1.0-1e-5) {
-          pnew(s)=1.0-1e-5; 
-        } else if (pnew(s)<1.0e-5) {
-          pnew(s)=1.0e-5;
+        if (pnew(s) > 1.0-1e-2) {
+          pnew(s)=1.0-1e-2; 
+        } else if (pnew(s)<1.0e-2) {
+          pnew(s)=1.0e-2;
         }
       }
       beta(dGg) = betaNew;
@@ -335,10 +335,10 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   arma::vec p(ns);
   p = 1.0/(1.0+exp(-M));
   for (int s=0;s<ns;s++) {
-    if (p(s) > 1.0-1e-5) {
-      p(s)=1.0-1e-5;
-    } else if (p(s)<1.0e-5) {
-      p(s)=1.0e-5;
+    if (p(s) > 1.0-1e-2) {
+      p(s)=1.0-1e-2;
+    } else if (p(s)<1.0e-2) {
+      p(s)=1.0e-2;
     }
   }
 
