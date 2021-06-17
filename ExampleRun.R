@@ -241,15 +241,23 @@ system("git add --all .")
 system("git commit -m 'added cv' ")
 system("git push")
 
+registerDoParallel(cores = 42)
 beta <- rep(0,ncol(x)*length(tV))
 tV <- seq(4,7,1)*12
 lam1V <- 10^seq(1,-4.5,-0.025)
 gamma <- 0.0000001
 folds <- 1:length(y0[Institute=="KCL1"])
-fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
+# fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
 cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
 
-
+pdf("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box.pdf")
+p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = "lam1_1",
+               color = "status",add="jitter",add.params = list(size = 1)
+               # ,ylim = c(0, 1)
+) +  stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
+p <- facet(p, facet.by = "timepoint")
+print(p)
+dev.off()
 
 
 
