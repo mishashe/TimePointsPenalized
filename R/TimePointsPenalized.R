@@ -156,9 +156,9 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
       dataT <- data.frame(sample=rownames(x0)[-Ind], status=status,type=y0[-Ind], timepoint=tV[it], FollowUp=FollowUp[-Ind])
       for (ilam1 in 1:length(lam1V))
       {
-        beta <- fits[[it]]$beta[,ilam1]
+        beta <- fits[[it]]$beta[,ilam1,drop=FALSE]
         Intercept <- fits[[it]]$Intercept[ilam1]
-        preds <- 1/(1+exp(-x0[-Ind,] %*% beta - Intercept))
+        preds <- 1/(1+exp(-x0[-Ind,] %*% beta - Intercept*0))
         dataT <- cbind(dataT,preds)
       }
       data <- rbind(data,dataT)

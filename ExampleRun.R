@@ -228,6 +228,38 @@ x0 <- t(cpm(x0,log=TRUE))
 FollowUp <- FU
 y0 <- (case_control=="Case") + 0
 
+
+library(roxygen2)
+setwd("~/Documents/Development/TimePointsPenalized")
+usethis::use_rcpp()
+Rcpp::compileAttributes(pkgdir = ".", verbose = TRUE)
+usethis::use_github_actions()
+roxygen2::roxygenise(load_code = "source")
+pkgbuild::compile_dll()
+devtools::document()
+system("git add --all .")
+system("git commit -m 'added cv' ")
+system("git push")
+
+beta <- rep(0,ncol(x)*length(tV))
+tV <- seq(4,7,1)*12
+lam1V <- 10^seq(1,-4.5,-0.025)
+gamma <- 0.0000001
+folds <- 1:length(y0[Institute=="KCL1"])
+fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
+cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
+
+
+
+
+
+
+
+
+
+
+
+
 registerDoParallel(cores = 20)
 detach("package:TimePointsPenalized", unload=TRUE)
 remove.packages("TimePointsPenalized")
@@ -249,6 +281,7 @@ system("git push")
 system("export OPENBLAS_NUM_THREADS=1")
 system("export GOTO_NUM_THREADS=1")
 system("export OMP_NUM_THREADS=1")
+################################################ MINIMAL EXAMPLE #######################################################
 library(rlist)
 library(Rcpp)
 library(foreach)
@@ -278,7 +311,10 @@ rownames(x0) <- paste0("S",1:nSamples)
 colnames(x0) <- paste0("G",1:nGenes)
 # fits <- fitTimePointsPenalized(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), startWithGlmnet=TRUE)
 folds <- 1:nrow(x0)
-cv <- fitTimePointsPenalized.cv(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE,folds)
+cv <- fitTimePointsPenalized.cv(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), startWithGlmnet=TRUE,folds)
+################################################################################################################################################ 
+
+
 
 
 Ind <- which(fits[[1]]$beta[,20]!=0)
