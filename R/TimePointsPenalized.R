@@ -176,6 +176,9 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
   AUC <- matrix(0,nrow=length(tV),ncol=length(lam1V))
   colnames(AUC) <- colnames_lam
   rownames(AUC) <- paste0("TimePoint_",1:length(tV))
+  pWilcoxonMinusLog10 <- matrix(0,nrow=length(tV),ncol=length(lam1V))
+  colnames(pWilcoxonMinusLog10) <- colnames_lam
+  rownames(pWilcoxonMinusLog10) <- paste0("TimePoint_",1:length(tV))
   for (it in 1:length(tV))
   {
     IndT <- which(dataCV$timepoint==tV[it])
@@ -186,6 +189,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     {
       logLike[it,ilam1] <- sum(weightsT*yT*log(predsT[,ilam1]))
       AUC[it,ilam1] <- auc(yT, predsT[,ilam1], direction="<")[1]
+      pWilcoxonMinusLog10[it,ilam1] <- wilcox.test(predsT[yT==1,ilam1], y = predsT[yT==0,ilam1], alternative = "greater", paired = FALSE, conf.int = FALSE)
     }
   }
   if (whatToMaximize=="auc")
@@ -198,7 +202,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
   }
   IndOptimum <- which.max(FigureMerit)
   OptimumLam1 <- lam1V[IndOptimum]
-  return(list(dataCV=dataCV, logLike=logLike, AUC=AUC, OptimumLam1=lam1V[IndOptimum], gamma=gamma))
+  return(list(dataCV=dataCV, logLike=logLike, AUC=AUC, pWilcoxonMinusLog10=pWilcoxonMinusLog10, OptimumLam1=lam1V[IndOptimum], gamma=gamma))
 }
 
 
