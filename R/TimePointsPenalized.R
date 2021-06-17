@@ -158,7 +158,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
       {
         beta <- fits[[it]]$beta[,ilam1,drop=FALSE]
         Intercept <- fits[[it]]$Intercept[ilam1]
-        preds <- 1/(1+exp(-x0[-Ind,] %*% beta - Intercept))
+        preds <- round(1/(1+exp(-x0[-Ind,] %*% beta - Intercept)),2)
         dataT <- cbind(dataT,preds)
       }
       data <- rbind(data,dataT)
@@ -185,6 +185,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     predsT <- dataCV[IndT,colnames_lam]
     yT <- dataCV[IndT,"status"]
     weightsT <- (yT==0)/sum(yT==0) + (yT==1)/sum(yT==1)
+    weightsT <- weightsT/sum(weightsT)
     for (ilam1 in 1:length(lam1V))
     {
       logLike[it,ilam1] <- sum(weightsT*yT*log(predsT[,ilam1]) + weightsT*(1-yT)*log(1-predsT[,ilam1]))

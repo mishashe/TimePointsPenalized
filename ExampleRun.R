@@ -262,10 +262,12 @@ folds <- 1:length(y0[Institute=="KCL1"])
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
 cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
 
+auc(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status, round(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1,3), direction="<")[1]
 which.max(colMeans(cv$logLike))
+cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1[cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status==1]
 
 pdf("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box.pdf")
-p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = "lam1_1",
+p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = "lam1_70",
                color = "status",add="jitter",add.params = list(size = 1)
                # ,ylim = c(0, 1)
 ) +  stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
@@ -276,9 +278,9 @@ dev.off()
 
 pdf("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit.pdf",height=10)
 par(mfrow = c(3, 1))
-matplot(t(cv$logLike),type = "l",ylim=c(-2,0))
+matplot(t(cv$logLike),type = "l",ylim=c(-4,-0.8))
 matplot(t(cv$AUC),type = "l")
-matplot(t(-log10(cv$pWilcoxonMinusLog10)),type = "l")
+matplot(t(cv$pWilcoxonMinusLog10),type = "l")
 dev.off()
 
 
@@ -810,10 +812,16 @@ dev.off()
 
 
 
-
-
-
-
-
+status <- c(rep(1,10),rep(0,10))
+pred <- status*0.1+0.49
+pred[11] <- 0.48
+auc(status,pred, direction="<")
+pROC_obj <- roc(status, pred,smoothed = TRUE,
+                ci=TRUE, ci.alpha=0.95, stratified=FALSE,
+                plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE,
+                print.auc=TRUE, show.thres=TRUE,cex.lab=1.0, cex.axis=1.0, cex.main=1.0, cex.sub=1.0, direction="<")
+sens.ci <- ci.se(pROC_obj)
+plot(sens.ci, type="shape", col="lightblue")
+plot(sens.ci, type="bars")
 
 
