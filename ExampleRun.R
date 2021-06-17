@@ -260,10 +260,11 @@ print(p)
 dev.off()
 
 
-pdf("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit.pdf")
-par(mfrow = c(2, 1))
+pdf("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit.pdf",height=10)
+par(mfrow = c(3, 1))
 matplot(t(cv$logLike),type = "l",ylim=c(-5,0))
 matplot(t(cv$AUC),type = "l")
+matplot(t(cv$pWilcoxonMinusLog10),type = "l")
 dev.off()
 
 

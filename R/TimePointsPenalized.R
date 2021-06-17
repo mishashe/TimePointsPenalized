@@ -181,7 +181,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
   rownames(pWilcoxonMinusLog10) <- paste0("TimePoint_",1:length(tV))
   for (it in 1:length(tV))
   {
-    IndT <- which(dataCV$timepoint==tV[it])
+    IndT <- which(dataCV$timepoint==tV[it] & dataCV$status %in% c(0,1))
     predsT <- dataCV[IndT,colnames_lam]
     yT <- dataCV[IndT,"status"]
     weightsT <- (yT==0)/sum(yT==0) + (yT==1)/sum(yT==1)
