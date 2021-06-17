@@ -187,9 +187,9 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     weightsT <- (yT==0)/sum(yT==0) + (yT==1)/sum(yT==1)
     for (ilam1 in 1:length(lam1V))
     {
-      logLike[it,ilam1] <- sum(weightsT*yT*log(predsT[,ilam1]))
+      logLike[it,ilam1] <- sum(weightsT*yT*log(predsT[,ilam1]) + weightsT*(1-yT)*log(1-predsT[,ilam1]))
       AUC[it,ilam1] <- auc(yT, predsT[,ilam1], direction="<")[1]
-      pWilcoxonMinusLog10[it,ilam1] <- wilcox.test(predsT[yT==1,ilam1], y = predsT[yT==0,ilam1], alternative = "greater", paired = FALSE, conf.int = FALSE)$p.value
+      pWilcoxonMinusLog10[it,ilam1] <- -log10(wilcox.test(predsT[yT==1,ilam1], y = predsT[yT==0,ilam1], alternative = "greater", paired = FALSE, conf.int = FALSE)$p.value)
     }
   }
   if (whatToMaximize=="auc")

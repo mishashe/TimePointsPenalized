@@ -262,8 +262,10 @@ folds <- 1:length(y0[Institute=="KCL1"])
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
 cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
 
+which.max(colMeans(cv$logLike))
+
 pdf("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box.pdf")
-p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = "lam1_60",
+p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = "lam1_1",
                color = "status",add="jitter",add.params = list(size = 1)
                # ,ylim = c(0, 1)
 ) +  stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
@@ -274,9 +276,9 @@ dev.off()
 
 pdf("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit.pdf",height=10)
 par(mfrow = c(3, 1))
-matplot(t(cv$logLike),type = "l",ylim=c(-5,0))
+matplot(t(cv$logLike),type = "l",ylim=c(-2,0))
 matplot(t(cv$AUC),type = "l")
-matplot(t(cv$pWilcoxonMinusLog10),type = "l")
+matplot(t(-log10(cv$pWilcoxonMinusLog10)),type = "l")
 dev.off()
 
 
