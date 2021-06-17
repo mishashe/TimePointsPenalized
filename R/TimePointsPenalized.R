@@ -189,7 +189,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
     {
       logLike[it,ilam1] <- sum(weightsT*yT*log(predsT[,ilam1]))
       AUC[it,ilam1] <- auc(yT, predsT[,ilam1], direction="<")[1]
-      pWilcoxonMinusLog10[it,ilam1] <- wilcox.test(predsT[yT==1,ilam1], y = predsT[yT==0,ilam1], alternative = "greater", paired = FALSE, conf.int = FALSE)
+      pWilcoxonMinusLog10[it,ilam1] <- wilcox.test(predsT[yT==1,ilam1], y = predsT[yT==0,ilam1], alternative = "greater", paired = FALSE, conf.int = FALSE)$p.value
     }
   }
   if (whatToMaximize=="auc")
