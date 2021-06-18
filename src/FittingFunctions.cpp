@@ -4,7 +4,7 @@
 using namespace Rcpp;
 
 arma::vec Thresholding(arma::vec p, double Threshold) {
-  for (int s=0;s<p.size();s++) {
+  for (int s=0; s<p.size(); s++) {
     if (p(s) > 1.0-Threshold) p(s)=1.0-Threshold; 
     else if (p(s)<Threshold) p(s)=Threshold;
   }

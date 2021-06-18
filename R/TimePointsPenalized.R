@@ -19,23 +19,18 @@ NULL
 #' @param lam1V array of lasso penalty prefactor
 #' @param gamma prefactor of the second penalty term - differences between adjacent time points coefficients
 #' @param tV array of time points
-#' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE)
+fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE)
 {  
   
   if (startWithGlmnet) {
-    fits0 <- fitTimePointsNonPenalized(y0, x0, FollowUp, lam1V, gamma, tV, standardize, Clinical0=data.frame(case_control0=y0))
+    fits0 <- fitTimePointsNonPenalized(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0))
   }
   else {
     fits0 <-  NULL
   }
-  if (standardize) {
-    for (i in 1:ncol(x0)) {
-      x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
-    }
-  }
+
   
 
   Intercept <- rep(0,length(tV))
@@ -86,8 +81,8 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
   for (it in 1:length(tV))
   {
     IndT <- which(Clinical$time==tV[it])
-    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)^2
-    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)^2
+    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)
+    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
     w[IndT] <- w[IndT]/sum(w[IndT])
     IndFor0 <- c(IndFor0,which(rownames(x0) %in% Clinical$samples[IndT]))
     IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
@@ -139,16 +134,15 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
 #' @param lam1V array of lasso penalty prefactor
 #' @param gamma prefactor of the second penalty term - differences between adjacent time points coefficients
 #' @param tV array of time points
-#' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE,folds,whatToMaximize="auc")
+fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE,folds,whatToMaximize="auc")
 {
   dataCV <- foreach (fold = unique(folds), .combine=rbind, .inorder=FALSE) %dopar%
   {
     print(fold)
     Ind <- which(fold!=folds)
-    fits <- fitTimePointsPenalized(y0[Ind], x0[Ind,], FollowUp[Ind], lam1V, gamma, tV, standardize, Clinical0=data.frame(case_control0=y0[Ind]), startWithGlmnet)
+    fits <- fitTimePointsPenalized(y0[Ind], x0[Ind,], FollowUp[Ind], lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Ind]), startWithGlmnet)
     data <- data.frame()
     for (it in 1:length(tV))
     {
@@ -220,17 +214,10 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
 #' @param lam1V array of lasso penalty prefactor
 #' @param gamma prefactor of the second penalty term - differences between adjacent time points coefficients
 #' @param tV array of time points
-#' @param standardize TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0))
+fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0))
 {     
-  if (standardize) {
-    for (i in 1:ncol(x0)) {
-      x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
-    }
-  }
-
   y <- c()
   Clinical <- data.frame()
   samplesT <- 1:(nrow(x0)*length(tV))
@@ -263,10 +250,11 @@ fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
   for (it in 1:length(tV))
   {
     IndT <- which(Clinical$time==tV[it])
-    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)^2
-    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)^2
+    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)
+    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
+    w[IndT] <- w[IndT]/sum(w[IndT])
     fit <- glmnet(x0[which(rownames(x0) %in% Clinical$samples[IndT]),], y[IndT],
-                  lambda=lam1V, standardize = FALSE, intercept = TRUE, weights=w[IndT],  family = "binomial", alpha=1)
+                  lambda=lam1V, intercept = TRUE, weights=w[IndT],  family = "binomial", alpha=1)
     fits <- list.append(fits,fit)
   }
   return(fits)

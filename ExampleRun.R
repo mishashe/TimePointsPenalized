@@ -228,6 +228,11 @@ x0 <- t(cpm(x0,log=TRUE))
 FollowUp <- FU
 y0 <- (case_control=="Case") + 0
 
+for (i in 1:ncol(x0)) {
+  x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
+}
+
+
 
 library(roxygen2)
 setwd("~/Documents/Development/TimePointsPenalized")
@@ -240,6 +245,11 @@ devtools::document()
 system("git add --all .")
 system("git commit -m 'added cv' ")
 system("git push")
+
+
+
+
+
 
 library(rlist)
 library(Rcpp)
@@ -259,11 +269,12 @@ tV <- seq(4,7,1)*12
 lam1V <- 10^seq(1,-4.5,-0.025)
 gamma <- 10
 folds <- 1:length(y0[Institute=="KCL1"])
+
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
 
-for (gamma in 10^seq(-3,2,0.1))
+for (gamma in 10^seq(0,0,0.1))
 {
-  cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
+  cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
   
   auc(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status, round(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1,3), direction="<")[1]
   j <- which.max(colMeans(cv$AUC))
@@ -271,7 +282,7 @@ for (gamma in 10^seq(-3,2,0.1))
   cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1[cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status==1]
   
   pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box_",gamma,".pdf"))
-  p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = paste0("lam1_",j),
+  p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = paste0("lam1_",1),
                  color = "status",add="jitter",add.params = list(size = 1)
                  # ,ylim = c(0, 1)
   ) +  stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))

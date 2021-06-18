@@ -11,7 +11,6 @@ fitTimePointsPenalized(
   lam1V,
   gamma,
   tV,
-  standardize = TRUE,
   Clinical0 = data.frame(case_control0 = y0),
   startWithGlmnet = FALSE
 )
@@ -28,8 +27,6 @@ fitTimePointsPenalized(
 \item{gamma}{prefactor of the second penalty term - differences between adjacent time points coefficients}
 
 \item{tV}{array of time points}
-
-\item{standardize}{TRUE/FALSE standardization of the x0 columns (zero mean, unit variance)}
 
 \item{Clinical0}{dataframe with clinical information (same order as rows of x0)}
 }
