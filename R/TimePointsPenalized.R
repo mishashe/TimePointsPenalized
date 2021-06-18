@@ -86,8 +86,8 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standardi
   for (it in 1:length(tV))
   {
     IndT <- which(Clinical$time==tV[it])
-    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)
-    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
+    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)^2
+    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)^2
     w[IndT] <- w[IndT]/sum(w[IndT])
     IndFor0 <- c(IndFor0,which(rownames(x0) %in% Clinical$samples[IndT]))
     IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
@@ -263,8 +263,8 @@ fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, standa
   for (it in 1:length(tV))
   {
     IndT <- which(Clinical$time==tV[it])
-    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)
-    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
+    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)^2
+    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)^2
     fit <- glmnet(x0[which(rownames(x0) %in% Clinical$samples[IndT]),], y[IndT],
                   lambda=lam1V, standardize = FALSE, intercept = TRUE, weights=w[IndT],  family = "binomial", alpha=1)
     fits <- list.append(fits,fit)

@@ -3,6 +3,14 @@
 
 using namespace Rcpp;
 
+arma::vec Thresholding(arma::vec p, double Threshold) {
+  for (int s=0;s<p.size();s++) {
+    if (p(s) > 1.0-Threshold) p(s)=1.0-Threshold; 
+    else if (p(s)<Threshold) p(s)=Threshold;
+  }
+  return p;
+}
+
 arma::vec sgn(arma::vec val) {
   arma::vec out(val.size());
   for (int i=0; i<val.size(); i++)
@@ -88,13 +96,7 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   arma::mat x0G(ns,nt);
   double LL;
   p = 1.0/(1.0+exp(-M));
-  for (int s=0;s<ns;s++) {
-    if (p(s) > 1.0-1e-2) {
-      p(s)=1.0-1e-2;
-    } else if (p(s)<1.0e-2) {
-      p(s)=1.0e-2;
-    }
-  }
+  p= Thresholding(p, 1.0e-2);
   double F=0;
   for (int s=0;s<ns;s++) {
     F += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
@@ -118,7 +120,8 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
       }
     }
   }
-  p = 1.0/(1.0+exp(-M)); for (int s=0;s<ns;s++) {if (p(s) > 1.0-1e-2) p(s)=1.0-1e-2; else if (p(s)<1.0e-2) p(s)=1.0e-2;}
+  p = 1.0/(1.0+exp(-M)); 
+  p = Thresholding(p, 1.0e-2);
   for (int s=0;s<ns;s++) LLmin += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   LLmin += - F;
   for (int g=0;g<m0;g++)
@@ -143,13 +146,7 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
         arma::vec Mnew = M;
         for (int s=0;s<ns;s++) Mnew(s) += x0G(s,it) * (betaNew-betaOld);
         arma::vec pnew = 1.0/(1.0+exp(-Mnew));
-        for (int s=0;s<ns;s++) {
-          if (pnew(s) > 1.0-1e-2) {
-            pnew(s)=1.0-1e-2;
-          } else if (pnew(s)<1.0e-2) {
-            pnew(s)=1.0e-2;
-          }
-        }
+        pnew = Thresholding(pnew, 1.0e-2);
         beta(g+it*m0) = betaNew;
         LL=0;
         for (int s=0;s<ns;s++) {
@@ -218,13 +215,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
   double LL;
   
   p = 1.0/(1.0+exp(-M));
-  for (int s=0;s<ns;s++) {
-    if (p(s) > 1.0-1.0e-2) {
-      p(s)=1.0-1.0e-2;
-    } else if (p(s)<1.0e-2) {
-      p(s)=1.0e-2;
-    }
-  }
+  p = Thresholding(p, 1.0e-2);
   double F=0;
   for (int s=0;s<ns;s++) {
     F += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
@@ -249,7 +240,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
     }
   }
   p = 1.0/(1.0+exp(-M));
-  for (int s=0;s<ns;s++) {if (p(s) > 1.0-1.0e-2) p(s)=1.0-1.0e-2; else if (p(s)<1.0e-2) p(s)=1.0e-2;}
+  p = Thresholding(p, 1.0e-2);
   for (int s=0;s<ns;s++) {
     LLmin += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   }
@@ -271,13 +262,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
     {
       arma::vec Mnew = M + x0G * (betaNew-betaOld);
       arma::vec pnew = 1.0/(1.0+exp(-Mnew));
-      for (int s=0;s<ns;s++) {
-        if (pnew(s) > 1.0-1e-2) {
-          pnew(s)=1.0-1e-2; 
-        } else if (pnew(s)<1.0e-2) {
-          pnew(s)=1.0e-2;
-        }
-      }
+      pnew = Thresholding(pnew, 1.0e-2);
       beta(dGg) = betaNew;
       LL=0;
       for (int s=0;s<ns;s++) {
@@ -334,13 +319,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   }
   arma::vec p(ns);
   p = 1.0/(1.0+exp(-M));
-  for (int s=0;s<ns;s++) {
-    if (p(s) > 1.0-1e-2) {
-      p(s)=1.0-1e-2;
-    } else if (p(s)<1.0e-2) {
-      p(s)=1.0e-2;
-    }
-  }
+  p = Thresholding(p, 1.0e-2);
 
   double LL=0;   
 

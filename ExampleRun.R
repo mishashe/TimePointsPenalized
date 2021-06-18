@@ -257,32 +257,36 @@ registerDoParallel(cores = 42)
 beta <- rep(0,ncol(x)*length(tV))
 tV <- seq(4,7,1)*12
 lam1V <- 10^seq(1,-4.5,-0.025)
-gamma <- 0.0000001
+gamma <- 10
 folds <- 1:length(y0[Institute=="KCL1"])
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
-cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
 
-auc(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status, round(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1,3), direction="<")[1]
-which.max(colMeans(cv$AUC))
-cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1[cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status==1]
-
-pdf("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box.pdf")
-p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = "lam1_74",
-               color = "status",add="jitter",add.params = list(size = 1)
-               # ,ylim = c(0, 1)
-) +  stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
-p <- facet(p, facet.by = "timepoint")
-print(p)
-dev.off()
-
-
-pdf("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit.pdf",height=10)
-par(mfrow = c(3, 1))
-matplot(t(cv$logLike),type = "l",ylim=c(-4,0))
-matplot(t(cv$AUC),type = "l")
-matplot(t(cv$pWilcoxonMinusLog10),type = "l")
-dev.off()
-
+for (gamma in 10^seq(-3,2,0.1))
+{
+  cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
+  
+  auc(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status, round(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1,3), direction="<")[1]
+  j <- which.max(colMeans(cv$AUC))
+  which.max(apply(cv$AUC,2,min))
+  cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1[cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status==1]
+  
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box_",gamma,".pdf"))
+  p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = paste0("lam1_",j),
+                 color = "status",add="jitter",add.params = list(size = 1)
+                 # ,ylim = c(0, 1)
+  ) +  stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
+  p <- facet(p, facet.by = "timepoint")
+  print(p)
+  dev.off()
+  
+  
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit_",gamma,".pdf"),height=10)
+  par(mfrow = c(3, 1))
+  matplot(t(cv$logLike),type = "l",ylim=c(-4,0))
+  matplot(t(cv$AUC),type = "l")
+  matplot(t(cv$pWilcoxonMinusLog10),type = "l")
+  dev.off()
+}
 
 
 
