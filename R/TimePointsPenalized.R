@@ -88,6 +88,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
     fits[[it]]$Intercept <- c()
     fits[[it]]$lambda <- c()
     fits[[it]]$gamma <- c()
+    fits[[it]]$nGenes <- c()
   }
   for (ilam1 in 1:length(lam1V)){
     lam1 <- lam1V[ilam1]/length(tV)
@@ -98,10 +99,10 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
         Intercept[it] <- fits0[[it]]$a0[ilam1]
       }
     }
-    #fit <- list(beta=beta,Intercept=Intercept);
     fit <- Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0)
     beta <- fit$beta
     Intercept <- fit$Intercept
+    nGenes <- fit$Intercept
     for (it in 1:length(tV)){
       betaOut <- fit$beta[(1:(dim(x0)[2]))+(it-1)*dim(x0)[2],1,drop=TRUE]
       InterceptOut <- fit$Intercept[it]
@@ -110,6 +111,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
       fits[[it]]$Intercept <- c(fits[[it]]$Intercept,InterceptOut)
       fits[[it]]$lambda <- c(fits[[it]]$lambda,lam1)
       fits[[it]]$gamma <- c(fits[[it]]$gamma,gamma)
+      fits[[it]]$nGenes <- c(fits[[it]]$nGenes,nGenes)
     }
   }
   return(fits)
@@ -133,7 +135,8 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
     Ind <- which(fold!=folds)
     fits <- fitTimePointsPenalized(y0[Ind], x0[Ind,], FollowUp[Ind], lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Ind]), startWithGlmnet)
     data <- data.frame()
-    for (it in 1:length(tV))
+    nGenes <- rep(0,length(tV))
+    for (it in 1:length(lam1V))
     {
       status <- ifelse(FollowUp[-Ind] > tV[it],0,ifelse(y0[-Ind]==1,1,-1))
       dataT <- data.frame(sample=rownames(x0)[-Ind], status=status,type=y0[-Ind], timepoint=tV[it], FollowUp=FollowUp[-Ind])
@@ -142,6 +145,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
         beta <- fits[[it]]$beta[,ilam1,drop=FALSE]
         Intercept <- fits[[it]]$Intercept[ilam1]
         preds <- round(1/(1+exp(-x0[-Ind,] %*% beta - Intercept)),2)
+        nGenes[ilam1] <- nGenes[ilam1] + fits[[it]]$nGenes[ilam1]
         preds[preds<1e-2] <- 1e-2
         preds[preds>1-1e-2] <- 1-1e-2
         dataT <- cbind(dataT,preds)
@@ -188,7 +192,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
   }
   IndOptimum <- which.max(FigureMerit)
   OptimumLam1 <- lam1V[IndOptimum]
-  return(list(dataCV=dataCV, logLike=logLike, AUC=AUC, pWilcoxonMinusLog10=pWilcoxonMinusLog10, OptimumLam1=lam1V[IndOptimum], gamma=gamma))
+  return(list(dataCV=dataCV, logLike=logLike, AUC=AUC, pWilcoxonMinusLog10=pWilcoxonMinusLog10, OptimumLam1=lam1V[IndOptimum], gamma=gamma, nGenes=nGenes))
 }
 
 
