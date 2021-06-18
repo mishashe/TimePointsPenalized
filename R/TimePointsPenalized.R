@@ -155,7 +155,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
   fitAll <- dataCV[[1]]
   dataCV <- foreach (fold = unique(folds), .combine=cbind, .inorder=FALSE) %dopar%
   {
-    return(dataCV[[fold]])
+    return(dataCV[[fold+1]])
   }
   
   #rename colnames of different lambda predictions
