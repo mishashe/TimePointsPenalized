@@ -21,17 +21,14 @@ NULL
 #' @param tV array of time points
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE)
-{  
+fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, 
+                                   Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE){  
   if (startWithGlmnet){
     fits0 <- fitTimePointsNonPenalized(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0))
   }
   else{
     fits0 <-  NULL
   }
-
-  
-
   Intercept <- rep(0,length(tV))
   beta <- rep(0,ncol(x0)*length(tV))
   y <- c()
@@ -76,9 +73,9 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0
   w <- y*0
   for (it in 1:length(tV)){
     IndT <- which(Clinical$time==tV[it])
-    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)^2
-    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)^2
-    w[IndT] <- w[IndT]/sum(w)
+    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0) #weights balance the total weight of cases and controls
+    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
+    w[IndT] <- w[IndT]/sum(w[IndT])
     IndFor0 <- c(IndFor0,which(rownames(x0) %in% Clinical$samples[IndT]))
     IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
   }
@@ -126,8 +123,8 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0
 #' @param tV array of time points
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE,folds,whatToMaximize="auc")
-{
+fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0), 
+                                      startWithGlmnet=FALSE,folds,whatToMaximize="auc"){
   dataCV <- foreach (fold = unique(folds), .combine=rbind, .inorder=FALSE) %dopar%
   {
     print(fold)
@@ -206,8 +203,8 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
 #' @param tV array of time points
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0))
-{     
+fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, 
+                                      tV, Clinical0=data.frame(case_control0=y0)){     
   y <- c()
   Clinical <- data.frame()
   samplesT <- 1:(nrow(x0)*length(tV))
@@ -215,8 +212,7 @@ fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
   Clinical0$sample <- rownames(x0)
   Clinical0$FollowUp <- FollowUp
   
-  for (it in 1:length(tV))
-  {
+  for (it in 1:length(tV)){
     t <- tV[it]
     case_controlT <- ifelse(FollowUp>t,0,ifelse(y0==1,1,-1))
     y <- c(y,case_controlT)
@@ -237,13 +233,12 @@ fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
   
   w <- y*0
   fits <- list()
-  for (it in 1:length(tV))
-  {
+  for (it in 1:length(tV)){
     IndT <- which(Clinical$time==tV[it])
     w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)
     w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
     w[IndT] <- w[IndT]/sum(w)
-    fit <- glmnet(x0[which(rownames(x0) %in% Clinical$samples[IndT]),], y[IndT],
+    fit <- glmnet(x0[rownames(x0) %in% Clinical$samples[IndT],], y[IndT],
                   lambda=lam1V, intercept = TRUE, weights=w[IndT],  family = "binomial", alpha=1)
     fits <- list.append(fits,fit)
   }

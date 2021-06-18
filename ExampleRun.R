@@ -275,7 +275,6 @@ folds <- 1:length(y0[Institute=="KCL1"])
 for (gamma in 10^seq(0,0,0.1))
 {
   cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
-  
   auc(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status, round(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1,3), direction="<")[1]
   j <- which.max(colMeans(cv$AUC))
   which.max(apply(cv$AUC,2,min))
