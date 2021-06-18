@@ -129,7 +129,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
   dataCV <- foreach (fold = c(-1,unique(folds)), .inorder=FALSE) %dopar%
   {
     if (fold==-1){
-      return(fitTimePointsPenalized(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Ind]), startWithGlmnet))
+      return(fitTimePointsPenalized(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0), startWithGlmnet))
     }
     print(fold)
     Ind <- which(fold!=folds)
