@@ -153,7 +153,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
     return(data)
   }
   fitAll <- dataCV[[1]]
-  dataCV <- foreach (fold = unique(folds), .combine=cbind .inorder=FALSE) %dopar%
+  dataCV <- foreach (fold = unique(folds), .combine=cbind, .inorder=FALSE) %dopar%
   {
     return(dataCV[[fold]])
   }
