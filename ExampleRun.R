@@ -228,9 +228,9 @@ x0 <- t(cpm(x0,log=TRUE))
 FollowUp <- FU
 y0 <- (case_control=="Case") + 0
 
-for (i in 1:ncol(x0)) {
-  x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
-}
+# for (i in 1:ncol(x0)) {
+#   x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
+# }
 
 
 
@@ -282,7 +282,7 @@ for (gamma in 10^seq(0,0,0.1))
   cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1[cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status==1]
   
   pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box_",gamma,".pdf"))
-  p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = paste0("lam1_",1),
+  p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = paste0("lam1_",j),
                  color = "status",add="jitter",add.params = list(size = 1)
                  # ,ylim = c(0, 1)
   ) +  stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
