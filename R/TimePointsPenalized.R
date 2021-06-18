@@ -38,6 +38,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
   Clinical0$sample <- rownames(x0)
   Clinical0$FollowUp <- FollowUp
   
+  # make long Clinical and y vectors containing all time points
   for (it in 1:length(tV)){
     t <- tV[it]
     case_controlT <- ifelse(FollowUp>t,0,ifelse(y0==1,1,-1))
@@ -73,9 +74,9 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
   w <- y*0
   for (it in 1:length(tV)){
     IndT <- which(Clinical$time==tV[it])
-    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0) #weights balance the total weight of cases and controls
-    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
-    w[IndT] <- w[IndT]/sum(w[IndT])
+    w[IndT][y[IndT]==0] <- 1/sum(y[IndT]==0) #weights balance the total weight of cases and controls
+    w[IndT][y[IndT]==1] <- 1/sum(y[IndT]==1)
+    w[IndT] <- w[IndT]/sum(w[IndT])*length(IndT)
     IndFor0 <- c(IndFor0,which(rownames(x0) %in% Clinical$samples[IndT]))
     IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
   }
