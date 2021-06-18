@@ -98,8 +98,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
         Intercept[it] <- fits0[[it]]$a0[ilam1]
       }
     }
-    fit$beta <- beta
-    fit$Intercept <- Intercept
+    fit <- list();fit$beta <- beta;fit$Intercept <- Intercept
     #fit <- Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0)
     beta <- fit$beta
     Intercept <- fit$Intercept
