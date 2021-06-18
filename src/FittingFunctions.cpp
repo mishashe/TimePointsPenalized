@@ -28,8 +28,7 @@ arma::vec sgn(arma::vec val) {
 }
 
 // Calculates intercept in iterative way 
-double CalculateDeltaIntercept(arma::vec y, arma::vec p, arma::vec w)
-{
+double CalculateDeltaIntercept(arma::vec y, arma::vec p, arma::vec w){
   int ns = y.size();
   double DeltaBeta0=1.0;
   double DeltaBeta0Prev=50.0;
@@ -49,8 +48,7 @@ double CalculateDeltaIntercept(arma::vec y, arma::vec p, arma::vec w)
 
 // Calculates first (b) and second (a) derivatives of the function to minimize 
 void GetHessian(arma::mat x, arma::vec beta, arma::vec p, arma::vec y, double lam2, arma::vec w,
-                arma::vec& b, arma::mat& a) 
-{
+                arma::vec& b, arma::mat& a) {
   int ng = beta.size();
   int ns = y.size();
   a.fill(0.0);
@@ -83,8 +81,7 @@ void GetHessian(arma::mat x, arma::vec beta, arma::vec p, arma::vec y, double la
 
 void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                           arma::vec& beta, arma::vec& Intercept, arma::vec w, arma::vec IndFor0,
-                          arma::vec IndTFor0, arma::vec& M, double& LLmin)
-{
+                          arma::vec IndTFor0, arma::vec& M, double& LLmin){
   int m = beta.size();
   int nt = tV.size();
   int ns = y.size();
@@ -178,8 +175,7 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
 }
 
 // Make one step for the t-group of a gene (soft threshold)
-arma::vec glmnetSimple(arma::mat X, arma::vec Y, double lam1)
-{
+arma::vec glmnetSimple(arma::mat X, arma::vec Y, double lam1){
   int ng = Y.size();
   arma::vec beta0(ng);
   beta0 = -solve( X, Y );
@@ -199,8 +195,7 @@ arma::vec glmnetSimple(arma::mat X, arma::vec Y, double lam1)
 
 void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, 
                      arma::vec& beta, arma::vec& Intercept, arma::vec w, arma::vec IndFor0,
-                     arma::vec IndTFor0, arma::vec& M, double& LLmin)
-{
+                     arma::vec IndTFor0, arma::vec& M, double& LLmin){
   int m = beta.size();
   int nt = tV.size();
   int ns = y.size();
@@ -297,8 +292,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
 // [[Rcpp::export]]
 List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                    arma::vec beta, arma::vec Intercept, arma::vec w, arma::vec IndFor0,
-                   arma::vec IndTFor0)
-{
+                   arma::vec IndTFor0){
   IndFor0 = IndFor0-1;
   IndTFor0 = IndTFor0-1;
   int nt = tV.size();

@@ -23,11 +23,10 @@ NULL
 #' @export
 fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE)
 {  
-  
-  if (startWithGlmnet) {
+  if (startWithGlmnet){
     fits0 <- fitTimePointsNonPenalized(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0))
   }
-  else {
+  else{
     fits0 <-  NULL
   }
 
@@ -42,18 +41,15 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0
   Clinical0$sample <- rownames(x0)
   Clinical0$FollowUp <- FollowUp
   
-  for (it in 1:length(tV))
-  {
+  for (it in 1:length(tV)){
     t <- tV[it]
     case_controlT <- ifelse(FollowUp>t,0,ifelse(y0==1,1,-1))
-    if (sum(case_controlT==0)<2)
-    {
+    if (sum(case_controlT==0)<2){
       print(paste0("Not enough controls for t=",t))
       print(table(case_controlT))
       return(NULL)
     }
-    if (sum(case_controlT==1)<2)
-    {
+    if (sum(case_controlT==1)<2){
       print(paste0("Not enough cases for t=",t))
       print(table(case_controlT))
       return(NULL)
@@ -78,33 +74,28 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0
   IndFor0 <- c()
   IndTFor0 <- c()
   w <- y*0
-  for (it in 1:length(tV))
-  {
+  for (it in 1:length(tV)){
     IndT <- which(Clinical$time==tV[it])
-    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)
-    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
+    w[IndT][which(y[IndT]==0)] <- 1/sum(y[IndT]==0)^2
+    w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)^2
     w[IndT] <- w[IndT]/sum(w)
     IndFor0 <- c(IndFor0,which(rownames(x0) %in% Clinical$samples[IndT]))
     IndTFor0 <- c(IndTFor0,which(rownames(x0) %in% Clinical$samples[IndT])*0+it)
   }
   w <- w/sum(w)
   fits <- list(list())
-  for (it in 1:length(tV))
-  {
+  for (it in 1:length(tV)){
     fits[[it]] <- list()
     fits[[it]]$beta <- matrix(0,nrow=dim(x0)[2],ncol=0)
     fits[[it]]$Intercept <- c()
     fits[[it]]$lambda <- c()
     fits[[it]]$gamma <- c()
   }
-  for (ilam1 in 1:length(lam1V))
-  {
+  for (ilam1 in 1:length(lam1V)){
     lam1 <- lam1V[ilam1]/length(tV)
     lam2 <- gamma*lam1
-    if (!is.null(fits0))
-    {
-      for (it in 1:length(tV))
-      {
+    if (!is.null(fits0)){
+      for (it in 1:length(tV)){
         beta[(1:(dim(x0)[2]))+(it-1)*dim(x0)[2]] <- fits0[[it]]$beta[,ilam1,drop=TRUE]
         Intercept[it] <- fits0[[it]]$a0[ilam1]
       }
@@ -112,8 +103,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0
     fit <- Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0)
     beta <- fit$beta
     Intercept <- fit$Intercept
-    for (it in 1:length(tV))
-    {
+    for (it in 1:length(tV)){
       betaOut <- fit$beta[(1:(dim(x0)[2]))+(it-1)*dim(x0)[2],1,drop=TRUE]
       InterceptOut <- fit$Intercept[it]
       IndT <- which(Clinical$time==tV[it])
