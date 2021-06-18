@@ -234,18 +234,6 @@ y0 <- (case_control=="Case") + 0
 
 
 
-library(roxygen2)
-setwd("~/Documents/Development/TimePointsPenalized")
-usethis::use_rcpp()
-Rcpp::compileAttributes(pkgdir = ".", verbose = TRUE)
-usethis::use_github_actions()
-roxygen2::roxygenise(load_code = "source")
-pkgbuild::compile_dll()
-devtools::document()
-system("git add --all .")
-system("git commit -m 'added cv' ")
-system("git push")
-
 
 
 
@@ -272,7 +260,7 @@ folds <- 1:length(y0[Institute=="KCL1"])
 
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
 
-for (gamma in 10^seq(0,0,0.1))
+for (gamma in 10^seq(-3,0,0.1))
 {
   cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
   auc(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status, round(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1,3), direction="<")[1]
@@ -296,6 +284,37 @@ for (gamma in 10^seq(0,0,0.1))
   matplot(t(cv$pWilcoxonMinusLog10),type = "l")
   dev.off()
 }
+
+
+
+
+
+
+library(roxygen2)
+setwd("~/Documents/Development/TimePointsPenalized")
+usethis::use_rcpp()
+Rcpp::compileAttributes(pkgdir = ".", verbose = TRUE)
+usethis::use_github_actions()
+roxygen2::roxygenise(load_code = "source")
+pkgbuild::compile_dll()
+devtools::document()
+system("git add --all .")
+system("git commit -m 'added cv' ")
+system("git push")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
