@@ -149,7 +149,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
         dataT <- cbind(dataT,preds)
       }
       data <- rbind(data,dataT)
-    }
+    } 
     return(data)
   }
   fitAll <- dataCV[[1]]
