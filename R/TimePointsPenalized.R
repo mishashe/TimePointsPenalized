@@ -37,7 +37,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
   GenesT <- rep("",ncol(x0)*length(tV))
   Clinical0$sample <- rownames(x0)
   Clinical0$FollowUp <- FollowUp
-  
+   
   # make long Clinical and y vectors containing all time points
   for (it in 1:length(tV)){
     t <- tV[it]
