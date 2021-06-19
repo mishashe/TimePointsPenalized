@@ -277,6 +277,7 @@ for (gamma in 10^seq(-3,0,0.1))
   print(p)
   dev.off()
 
+  nGenes <- cv$fit
   pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit_",gamma,".pdf"),height=10)
   par(mfrow = c(3, 1))
   matplot(t(cv$logLike),type = "l")

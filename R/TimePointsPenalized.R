@@ -163,6 +163,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
   colnames_lam <- paste0("lam1_",1:length(lam1V))
   colnames(dataCV)[1:length(lam1V) + NumberColumns] <- colnames_lam
   cv.results <- list(dataCV=dataCV)
+  # initialize output variables
   logLike <- matrix(0,nrow=length(tV),ncol=length(lam1V))
   colnames(logLike) <- colnames_lam
   rownames(logLike) <- paste0("TimePoint_",1:length(tV))
@@ -172,6 +173,12 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
   pWilcoxonMinusLog10 <- matrix(0,nrow=length(tV),ncol=length(lam1V))
   colnames(pWilcoxonMinusLog10) <- colnames_lam
   rownames(pWilcoxonMinusLog10) <- paste0("TimePoint_",1:length(tV))
+  nGenes <- matrix(0,nrow=length(tV),ncol=length(lam1V))
+  colnames(nGenes) <- colnames_lam
+  rownames(nGenes) <- paste0("TimePoint_",1:length(tV))
+  nonZeroMatrix <- matrix(0,ncol=length(lam1V),nrow=ncol(x0))
+  colnames(nonZeroMatrix) <- colnames_lam
+  rownames(nonZeroMatrix) <- colnames(x0)
   for (it in 1:length(tV))
   {
     IndT <- which(dataCV$timepoint==tV[it] & dataCV$status %in% c(0,1))
@@ -184,6 +191,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
       logLike[it,ilam1] <- sum(weightsT*yT*log(predsT[,ilam1]) + weightsT*(1-yT)*log(1-predsT[,ilam1]))
       AUC[it,ilam1] <- auc(yT, predsT[,ilam1], direction="<")[1]
       pWilcoxonMinusLog10[it,ilam1] <- -log10(wilcox.test(predsT[yT==1,ilam1], y = predsT[yT==0,ilam1], alternative = "greater", paired = FALSE, conf.int = FALSE)$p.value)
+      nonZeroMatrix[,ilam1] <- nonZeroMatrix + (fitAll[[it]]$beta[,ilam1]!=0)
     }
   }
   if (whatToMaximize=="auc")
@@ -196,7 +204,9 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
   }
   IndOptimum <- which.max(FigureMerit)
   OptimumLam1 <- lam1V[IndOptimum]
-  return(list(dataCV=dataCV, logLike=logLike, AUC=AUC, pWilcoxonMinusLog10=pWilcoxonMinusLog10, OptimumLam1=lam1V[IndOptimum], gamma=gamma, fit=fitAll))
+  return(list(dataCV=dataCV, logLike=logLike, AUC=AUC, pWilcoxonMinusLog10=pWilcoxonMinusLog10, 
+              OptimumLam1=lam1V[IndOptimum], gamma=gamma, nGenes=nGenes, fit=fitAll, 
+              nGenesUnion=colSums(nonZeroMatrix!=0),nGenesIntersect=colSums(nonZeroMatrix==length(tV))))
 }
 
 
