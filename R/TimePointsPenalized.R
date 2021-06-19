@@ -191,7 +191,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
       logLike[it,ilam1] <- sum(weightsT*yT*log(predsT[,ilam1]) + weightsT*(1-yT)*log(1-predsT[,ilam1]))
       AUC[it,ilam1] <- auc(yT, predsT[,ilam1], direction="<")[1]
       pWilcoxonMinusLog10[it,ilam1] <- -log10(wilcox.test(predsT[yT==1,ilam1], y = predsT[yT==0,ilam1], alternative = "greater", paired = FALSE, conf.int = FALSE)$p.value)
-      nonZeroMatrix[,ilam1] <- nonZeroMatrix + (fitAll[[it]]$beta[,ilam1]!=0)
+      nonZeroMatrix[,ilam1] <- nonZeroMatrix[,ilam1] + (fitAll[[it]]$beta[,ilam1]!=0)
     }
   }
   if (whatToMaximize=="auc")
