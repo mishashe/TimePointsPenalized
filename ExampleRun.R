@@ -259,7 +259,7 @@ folds <- 1:length(y0[Institute=="KCL1"])
 
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
 
-for (gamma in 10^seq(-3,0,0.1))
+for (gamma in 10^seq(0,0,0.1))
 {
   cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
   auc(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status, round(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1,3), direction="<")[1]
@@ -276,12 +276,13 @@ for (gamma in 10^seq(-3,0,0.1))
   print(p)
   dev.off()
 
-  nGenes <- cv$fit
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit_",gamma,".pdf"),height=10)
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit_",gamma,".pdf"),height=15)
   par(mfrow = c(3, 1))
   matplot(t(cv$logLike),type = "l")
   matplot(t(cv$AUC),type = "l")
   matplot(t(cv$pWilcoxonMinusLog10),type = "l")
+  plot(cv$nGenesUnion)
+  plot(cv$nGenesIntersect)
   dev.off()
 }
 
