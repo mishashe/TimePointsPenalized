@@ -78,7 +78,7 @@ rownames(xKCL1) <- GenesNames[Ind]
 
 xKCL1 <- DGEList(xKCL1)
 xKCL1 <- calcNormFactors(xKCL1,method="TMM")
-cutoff <- 5
+cutoff <- 50
 drop <- which(apply(cpm(xKCL1), 1, mean) < cutoff)
 xKCL1 <- xKCL1[-drop,] 
 dim(xKCL1)
@@ -131,7 +131,7 @@ rownames(xNKI1) <- GenesNames[Ind]
 
 xNKI1 <- DGEList(xNKI1)
 xNKI1 <- calcNormFactors(xNKI1,method="TMM")
-cutoff <- 5
+cutoff <- 50
 drop <- which(apply(cpm(xNKI1), 1, mean) < cutoff)
 xNKI1 <- xNKI1[-drop,] 
 dim(xNKI1)
@@ -193,7 +193,7 @@ rownames(x2) <- GenesNames[Ind]
 
 x2 <- DGEList(x2)
 x2 <- calcNormFactors(x2,method="TMM")
-cutoff <- 5
+cutoff <- 50
 drop <- which(apply(cpm(x2), 1, mean) < cutoff)
 x2 <- x2[-drop,] 
 dim(x2)
