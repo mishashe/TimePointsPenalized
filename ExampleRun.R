@@ -17,6 +17,7 @@ library(readr)
 library(ensembl)
 library(edgeR)
 library(rlist)
+cutoff <- 50
 
 system("export OPENBLAS_NUM_THREADS=40")
 system("export GOTO_NUM_THREADS=40")
@@ -78,7 +79,7 @@ rownames(xKCL1) <- GenesNames[Ind]
 
 xKCL1 <- DGEList(xKCL1)
 xKCL1 <- calcNormFactors(xKCL1,method="TMM")
-cutoff <- 50
+# cutoff <- 5
 drop <- which(apply(cpm(xKCL1), 1, mean) < cutoff)
 xKCL1 <- xKCL1[-drop,] 
 dim(xKCL1)
@@ -131,7 +132,7 @@ rownames(xNKI1) <- GenesNames[Ind]
 
 xNKI1 <- DGEList(xNKI1)
 xNKI1 <- calcNormFactors(xNKI1,method="TMM")
-cutoff <- 50
+# cutoff <- 5
 drop <- which(apply(cpm(xNKI1), 1, mean) < cutoff)
 xNKI1 <- xNKI1[-drop,] 
 dim(xNKI1)
@@ -193,7 +194,7 @@ rownames(x2) <- GenesNames[Ind]
 
 x2 <- DGEList(x2)
 x2 <- calcNormFactors(x2,method="TMM")
-cutoff <- 50
+# cutoff <- 5
 drop <- which(apply(cpm(x2), 1, mean) < cutoff)
 x2 <- x2[-drop,] 
 dim(x2)
@@ -261,7 +262,9 @@ folds <- sample(cut(1:length(y0[Institute=="KCL1"]),breaks=19,labels=FALSE))
 registerDoParallel(cores = 20)
 for (gamma in 10^seq(4,-2,-0.5))
 {
-  cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=FALSE,folds)
+  cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], 
+                                  lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
+                                  startWithGlmnet=TRUE,folds)
   auc(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status, round(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1,3), direction="<")[1]
   j <- which.max(colMeans(cv$AUC))
   which.max(apply(cv$AUC,2,min))
