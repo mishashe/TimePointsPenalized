@@ -91,7 +91,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
   }
   for (ilam1 in 1:length(lam1V)){
     lam1 <- lam1V[ilam1]/length(tV)
-    lam2 <- gamma*lam1
+    lam2 <- gamma
     if (!is.null(fits0)){
       for (it in 1:length(tV)){
         beta[(1:(dim(x0)[2]))+(it-1)*dim(x0)[2]] <- fits0[[it]]$beta[,ilam1,drop=TRUE]

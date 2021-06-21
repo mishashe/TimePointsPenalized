@@ -250,16 +250,16 @@ remove.packages("TimePointsPenalized")
 install_github("mishashe/TimePointsPenalized", force=TRUE)
 library(TimePointsPenalized)
 library(doParallel)
-registerDoParallel(cores = 10)
+registerDoParallel(cores = 43)
 beta <- rep(0,ncol(x)*length(tV))
 tV <- seq(4,7,1)*12
 lam1V <- 10^seq(1,-4.5,-0.025)
 gamma <- 10
 folds <- 1:length(y0[Institute=="KCL1"])
-
+folds <- sample(cut(1:length(y0[Institute=="KCL1"]),breaks=19,labels=FALSE))
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
-
-for (gamma in 10^seq(0,0,0.1))
+registerDoParallel(cores = 20)
+for (gamma in 10^seq(0,2,0.5))
 {
   cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE,folds)
   auc(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status, round(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1,3), direction="<")[1]
@@ -268,21 +268,45 @@ for (gamma in 10^seq(0,0,0.1))
   cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1[cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status==1]
   
   pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box_",gamma,".pdf"))
-  p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = paste0("lam1_",j),
-                 color = "status",add="jitter",add.params = list(size = 1)
-                 # ,ylim = c(0, 1)
-  ) +  stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
-  p <- facet(p, facet.by = "timepoint")
-  print(p)
+  for (ilam1V in c(j,seq(1,length(lam1V),round(length(lam1V)/10))))
+  {
+    p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = paste0("lam1_",ilam1V),
+                   color = "status",add="jitter",add.params = list(size = 1)
+                   # ,ylim = c(0, 1)
+    ) +  stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
+    p <- facet(p, facet.by = "timepoint")
+    print(p)
+  }
   dev.off()
 
   pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit_",gamma,".pdf"),height=15)
   par(mfrow = c(3, 1))
-  matplot(t(cv$logLike),type = "l")
-  matplot(t(cv$AUC),type = "l")
-  matplot(t(cv$pWilcoxonMinusLog10),type = "l")
-  plot(cv$nGenesUnion)
-  plot(cv$nGenesIntersect)
+  matplot(log10(lam1V),t(cv$logLike),type = "l")
+  matplot(log10(lam1V),t(cv$AUC),type = "l")
+  matplot(log10(lam1V),t(cv$pWilcoxonMinusLog10),type = "l")
+  plot(log10(lam1V),cv$nGenesUnion)
+  plot(log10(lam1V),cv$nGenesIntersect)
+  dev.off()
+  
+  
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/GenesMatrix_",gamma,".pdf"),height=15)
+  for (ilam1V in c(j,seq(1,length(lam1V),round(length(lam1V)/10))))
+  {
+    betaMat <- matrix(0,nrow=ncol(x0),ncol=length(tV))
+    rownames(betaMat) <- colnames(x0)
+    colnames(betaMat) <- paste0("t_",tV)
+    for (it in 1:length(tV))
+    {
+      betaMat[,it] <- cv$fit[[it]]$beta[,ilam1V]
+    }
+    betaMat <- betaMat[rowMeans(betaMat==0)!=1,]
+    p <- Heatmap(betaMat,
+                 cluster_rows = TRUE,
+                 cluster_columns = FALSE,
+                 column_title = log10(lam1V[ilam1V])
+    )
+    print(p)
+  }
   dev.off()
 }
 
