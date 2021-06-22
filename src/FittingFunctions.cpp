@@ -283,7 +283,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
 List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                    arma::vec beta, arma::vec Intercept, arma::vec w, arma::vec IndFor0,
                    arma::vec IndTFor0){
-  IndFor0 = IndFor0-1; for returning the glmnet independent time points fit
+  IndFor0 = IndFor0-1; 
   IndTFor0 = IndTFor0-1;
   int nt = tV.size();
   w=w/accu(w);
