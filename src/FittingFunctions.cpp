@@ -249,7 +249,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
     
     betaNew = glmnetSimple(a,b - a * betaOld,lam1);
     Rcout<<betaNew(1)<<std::endl;
-    return;
+    // return;
     if (any(betaNew!=betaOld)) {
       arma::vec Mnew = M + x0G * (betaNew-betaOld);
       arma::vec pnew = 1.0/(1.0+exp(-Mnew));
