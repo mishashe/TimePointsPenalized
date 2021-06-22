@@ -244,7 +244,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
       x0G(s,IndTFor0(s)) = x0(IndFor0(s),g);
     }
     GetHessian(x0G, betaOld, p, y, lam2,w,b,a);
-    Rcout<<a(1,1)<<std::endl;
+    Rcout<<a(0,0)<<" "<<a(0,1)<<" "<<a(1,0)<<" "<<a(1,1)<<" "<<a(1,2)<<" "<<a(2,1)<<" "<<std::endl;
     betaNew = glmnetSimple(a,b - a * betaOld,lam1);
     Rcout<<betaNew(1)<<std::endl;
     return;
