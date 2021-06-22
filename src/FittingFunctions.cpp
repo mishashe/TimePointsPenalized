@@ -32,10 +32,11 @@ double CalculateDeltaIntercept(arma::vec y, arma::vec p, arma::vec w){
   int ns = y.size();
   double DeltaBeta0=1.0;
   double DeltaBeta0Prev=50.0;
-  double Sum1=0;
-  double Sum2=0;
+
   while(abs(DeltaBeta0-DeltaBeta0Prev)/(1e-5+abs(DeltaBeta0)+abs(DeltaBeta0Prev))>1.0e-5)
   {
+    double Sum1=0;
+    double Sum2=0;
     DeltaBeta0Prev=DeltaBeta0;
     for (int s=0; s<ns; s++) {
       Sum1+=w(s)*y(s);
@@ -125,12 +126,12 @@ void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
     LLmin += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   }
   LLmin += - F;
-  // if (LLmin>LLprev)
-  // {
-  //   Intercept = InterceptPrev;
-  //   M = Mprev;
-  //   LLmin = LLprev;
-  // }
+  if (LLmin>LLprev)
+  {
+    Intercept = InterceptPrev;
+    M = Mprev;
+    LLmin = LLprev;
+  }
   return;
 }
 
