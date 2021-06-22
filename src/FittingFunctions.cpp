@@ -68,10 +68,10 @@ void GetHessian(arma::mat x, arma::vec beta, arma::vec p, arma::vec y, double la
     {
       if (g2==g1-1) a(g1,g2) += -2.0*lam2;
       if (g2==g1+1) a(g1,g2) += -2.0*lam2;
-      for (int s=0; s<ns; s++)
-      {
-        a(g1,g2) += x(s,g1)*x(s,g2)*p(s)*(1.0-p(s))*w(s);  
-      }
+      // for (int s=0; s<ns; s++)
+      // {
+      //   a(g1,g2) += x(s,g1)*x(s,g2)*p(s)*(1.0-p(s))*w(s);  
+      // }
     }
     for (int g2=0; g2<g1; g2++) a(g1,g2) = a(g2,g1);
   }
@@ -247,8 +247,8 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
       x0G(s,IndTFor0(s)) = x0(IndFor0(s),g);
     }
     GetHessian(x0G, betaOld, p, y, lam2,w,b,a);
-    Rcout<<a(0,0)<<" "<<a(0,1)<<" "<<a(1,0)<<" "<<a(1,1)<<" "<<a(1,2)<<" "<<a(2,1)<<" "<<std::endl;
-    Rcout<<b(0)<<" "<<b(1)<<" "<<b(2)<<" "<<b(3)<<" "<<std::endl;
+    //Rcout<<a(0,0)<<" "<<a(0,1)<<" "<<a(1,0)<<" "<<a(1,1)<<" "<<a(1,2)<<" "<<a(2,1)<<" "<<std::endl;
+    //Rcout<<b(0)<<" "<<b(1)<<" "<<b(2)<<" "<<b(3)<<" "<<std::endl;
     
     betaNew = glmnetSimple(a,b - a * betaOld,lam1);
     Rcout<<betaNew(1)<<std::endl;
@@ -329,9 +329,8 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   }
   double LLprev = -2*(LL+100);
   arma::vec betaPrev = -(beta+0.001);
-  //Rcout<<abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<std::endl;
-  // while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 |
-  //         any(sgn(beta) != sgn(betaPrev))) { 
+  while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 |
+          any(sgn(beta) != sgn(betaPrev))) {
     while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 ){ 
     LLprev = LL;
     betaPrev = beta;
