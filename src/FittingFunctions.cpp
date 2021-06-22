@@ -70,7 +70,7 @@ void GetHessian(arma::mat x, arma::vec beta, arma::vec p, arma::vec y, double la
       if (g2==g1+1) a(g1,g2) += -2.0*lam2;
       for (int s=0; s<ns; s++)
       {
-        a(g1,g2) += x(s,g1)*x(s,g2)*p(s)*(1.0-p(s))*w(s);  Rcout<<x(s,g1)*x(s,g2)*p(s)*(1.0-p(s))*w(s)<<"ggggggggggggggggggg"<<std::endl;
+        a(g1,g2) += x(s,g1)*x(s,g2)*p(s)*(1.0-p(s))*w(s);  Rcout<<x(s,g1)<<" ggg "<<x(s,g2)<<" ggg "<<p(s)<<" ggg "<<(1.0-p(s))<<" ggg "<<w(s)<<" ggg "<<std::endl;
       }
     }
     for (int g2=0; g2<g1; g2++) a(g1,g2) = a(g2,g1);
