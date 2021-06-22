@@ -147,7 +147,7 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   arma::uvec dGg(nt);
   arma::mat x0G(ns,nt);
   double LL;
-  UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w,  IndFor0, IndTFor0, M, LLmin);
+  //UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w,  IndFor0, IndTFor0, M, LLmin);
   for (int g=0;g<m0;g++) {
     for (int it=0;it<nt;it++) {dGg(it) = it*m0 + g;}
     x0G.fill(0);
@@ -200,11 +200,11 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
 arma::vec glmnetSimple(arma::mat X, arma::vec Y, double lam1){
   int ng = Y.size();
   arma::vec beta0(ng);
-  beta0 = -solve( X, Y, arma::solve_opts::no_approx);
+  beta0 = -solve( X, Y);
   arma::vec sign0(ng);
   sign0 = sgn(beta0);
   arma::vec beta(ng);
-  beta = -solve( X, Y + sign0*lam1, arma::solve_opts::no_approx);
+  beta = -solve( X, Y + sign0*lam1);
   arma::vec sign(ng);
   sign = sgn(beta);
   for (int g=0;g<ng;g++) {
@@ -231,7 +231,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
   arma::vec betaOld(nt);
   arma::vec betaNew(nt);
   double LL;
-  UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w,  IndFor0, IndTFor0, M, LLmin);
+  //UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w,  IndFor0, IndTFor0, M, LLmin);
   for (int g=0;g<m0;g++) {
     for (int it=0;it<nt;it++) {
       dGg(it) = it*m0 + g;
