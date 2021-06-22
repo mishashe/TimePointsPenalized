@@ -326,8 +326,9 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   }
   double LLprev = 0;
   arma::vec betaPrev = -(beta+0.001);
-  while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 |
-          any(sgn(beta) != sgn(betaPrev))) { 
+  // while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 |
+  //         any(sgn(beta) != sgn(betaPrev))) { 
+    while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 ){ 
     LLprev = LL;
     betaPrev = beta;
     SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
