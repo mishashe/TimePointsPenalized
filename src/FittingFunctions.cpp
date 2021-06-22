@@ -330,13 +330,13 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   double LLprev = -2*(LL+100);
   arma::vec betaPrev = -(beta+0.001);
   //Rcout<<abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<std::endl;
-  while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 ){
-         // | any(sgn(beta) != sgn(betaPrev))) {
+  while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 
+          | any(sgn(beta) != sgn(betaPrev))) {
     LLprev = LL;
     betaPrev = beta;
     SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
-    Rcout<<" LL "<<LL<<" "<<LLprev<<std::endl;
+    Rcout<<" LL "<<LL<<" "<<LLprev<<" "<<abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<" "<<any(sgn(beta) != sgn(betaPrev))<<std::endl;
   }
   return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("nG") = accu(beta!=0)));
 }
