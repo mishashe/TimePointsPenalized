@@ -56,18 +56,18 @@ void GetHessian(arma::mat x, arma::vec beta, arma::vec p, arma::vec y, double la
   // Calc with lambda1=0
   for (int g1=0; g1<ng; g1++)
   {
-    if (g1>0) {b(g1) += 2*lam2*(beta(g1)-beta(g1-1)); a(g1,g1) += 2*lam2;}
-    if (g1<(ng-1)) {b(g1) += 2*lam2*(beta(g1)-beta(g1+1)); a(g1,g1) += 2*lam2;}
+    if (g1>0) {b(g1) += 2.0*lam2*(beta(g1)-beta(g1-1)); a(g1,g1) += 2.0*lam2;}
+    if (g1<(ng-1)) {b(g1) += 2.0*lam2*(beta(g1)-beta(g1+1)); a(g1,g1) += 2.0*lam2;}
     for (int s=0; s<ns; s++)
     {
-      b(g1) += -x(s,g1)*(y(s)*(1.0-p(s))-(1-y(s))*p(s))*w(s);
+      b(g1) += -x(s,g1)*(y(s)*(1.0-p(s))-(1.0-y(s))*p(s))*w(s);
       a(g1,g1) += x(s,g1)*x(s,g1)*p(s)*(1.0-p(s))*w(s);    
     }
     
     for (int g2=g1+1; g2<ng; g2++)
     {
-      if (g2==g1-1) a(g1,g2) += -2*lam2;
-      if (g2==g1+1) a(g1,g2) += -2*lam2;
+      if (g2==g1-1) a(g1,g2) += -2.0*lam2;
+      if (g2==g1+1) a(g1,g2) += -2.0*lam2;
       for (int s=0; s<ns; s++)
       {
         a(g1,g2) += x(s,g1)*x(s,g2)*p(s)*(1.0-p(s))*w(s);  
@@ -326,7 +326,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   }
   double LLprev = -2*(LL+100);
   arma::vec betaPrev = -(beta+0.001);
-  Rcout<<abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<std::endl;
+  //Rcout<<abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<std::endl;
   // while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 |
   //         any(sgn(beta) != sgn(betaPrev))) { 
     while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 ){ 
