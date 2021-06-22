@@ -332,7 +332,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
     betaPrev = beta;
     SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
-    Rcout<<LL<<std::endl;
+    Rcout<<" LL "<<LL<<" "<<LLprev<<std::endl;
   }
   return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("nG") = accu(beta!=0)));
 }
