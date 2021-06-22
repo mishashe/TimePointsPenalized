@@ -200,11 +200,11 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
 arma::vec glmnetSimple(arma::mat X, arma::vec Y, double lam1){
   int ng = Y.size();
   arma::vec beta0(ng);
-  beta0 = -solve( X, Y ,solve_opts::no_approx);
+  beta0 = -solve( X, Y, solve_opts::no_approx);
   arma::vec sign0(ng);
   sign0 = sgn(beta0);
   arma::vec beta(ng);
-  beta = -solve( X, Y + sign0*lam1,solve_opts::no_approx);
+  beta = -solve( X, Y + sign0*lam1, arma::solve_opts::no_approx);
   arma::vec sign(ng);
   sign = sgn(beta);
   for (int g=0;g<ng;g++) {
