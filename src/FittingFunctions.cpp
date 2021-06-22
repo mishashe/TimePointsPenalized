@@ -91,13 +91,7 @@ void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   int nt = tV.size();
   int ns = y.size();
   int m0 = m/nt;
-  arma::uvec dGg(nt);
-  arma::mat x0G(ns,nt);
-  arma::vec b(nt);
-  arma::mat a(nt,nt);
   arma::vec p(ns); 
-  arma::vec betaOld(nt);
-  arma::vec betaNew(nt);
   double LL;
   
   p = 1.0/(1.0+exp(-M));
@@ -345,7 +339,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
     LLprev = LL;
     betaPrev = beta;
     SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
-    GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
+    //GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     Rcout<<LL<<std::endl;
   }
   return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("nG") = accu(beta!=0)));
