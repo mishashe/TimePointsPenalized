@@ -79,6 +79,69 @@ void GetHessian(arma::mat x, arma::vec beta, arma::vec p, arma::vec y, double la
   return;
 }
 
+
+void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, 
+                     arma::vec beta, arma::vec& Intercept, arma::vec w, arma::vec IndFor0,
+                     arma::vec IndTFor0, arma::vec& M, double& LLmin){
+  arma::vec InterceptPrev = Intercept;
+  arma::vec Mprev = M;
+  double LLprev= LLmin;
+  
+  int m = beta.size();
+  int nt = tV.size();
+  int ns = y.size();
+  int m0 = m/nt;
+  arma::uvec dGg(nt);
+  arma::mat x0G(ns,nt);
+  arma::vec b(nt);
+  arma::mat a(nt,nt);
+  arma::vec p(ns); 
+  arma::vec betaOld(nt);
+  arma::vec betaNew(nt);
+  double LL;
+  
+  p = 1.0/(1.0+exp(-M));
+  p = Thresholding(p, 1.0e-2);
+  double F=0;
+  for (int s=0;s<ns;s++) {
+    F += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
+  }
+  // Update group of intercepts
+  for (int it=0;it<nt;it++){
+    std::vector<double> yT,pT,wT;
+    
+    for (int s=0;s<ns;s++) {
+      if (IndTFor0(s)==it) {
+        yT.push_back(y(IndFor0(s)));
+        pT.push_back(p(IndFor0(s)));
+        wT.push_back(w(IndFor0(s)));
+      }
+    }
+    double dIntercept = CalculateDeltaIntercept(yT, pT, wT);
+    Intercept(it) = Intercept(it) + dIntercept;
+    for (int s=0;s<ns;s++) {
+      if (IndTFor0(s)==it) {
+        M(s) = M(s) + dIntercept;
+      }
+    }
+  }
+  p = 1.0/(1.0+exp(-M));
+  p = Thresholding(p, 1.0e-2);
+  for (int s=0;s<ns;s++) {
+    LLmin += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
+  }
+  LLmin += - F;
+  if (LLmin>LLprev)
+  {
+    Intercept = InterceptPrev;
+    M = Mprev;
+    LLmin = LLprev;
+  }
+  return;
+}
+
+
+
 void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                           arma::vec& beta, arma::vec& Intercept, arma::vec w, arma::vec IndFor0,
                           arma::vec IndTFor0, arma::vec& M, double& LLmin){
@@ -163,67 +226,6 @@ arma::vec glmnetSimple(arma::mat X, arma::vec Y, double lam1){
     }
   }
   return beta;
-}
-
-
-void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2, 
-                arma::vec beta, arma::vec& Intercept, arma::vec w, arma::vec IndFor0,
-                arma::vec IndTFor0, arma::vec& M, double& LLmin){
-  arma::vec InterceptPrev = Intercept;
-  arma::vec Mprev = M;
-  double LLprev= LLmin;
-    
-  int m = beta.size();
-  int nt = tV.size();
-  int ns = y.size();
-  int m0 = m/nt;
-  arma::uvec dGg(nt);
-  arma::mat x0G(ns,nt);
-  arma::vec b(nt);
-  arma::mat a(nt,nt);
-  arma::vec p(ns); 
-  arma::vec betaOld(nt);
-  arma::vec betaNew(nt);
-  double LL;
-  
-  p = 1.0/(1.0+exp(-M));
-  p = Thresholding(p, 1.0e-2);
-  double F=0;
-  for (int s=0;s<ns;s++) {
-    F += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
-  }
-  // Update group of intercepts
-  for (int it=0;it<nt;it++){
-    std::vector<double> yT,pT,wT;
-    
-    for (int s=0;s<ns;s++) {
-      if (IndTFor0(s)==it) {
-        yT.push_back(y(IndFor0(s)));
-        pT.push_back(p(IndFor0(s)));
-        wT.push_back(w(IndFor0(s)));
-      }
-    }
-    double dIntercept = CalculateDeltaIntercept(yT, pT, wT);
-    Intercept(it) = Intercept(it) + dIntercept;
-    for (int s=0;s<ns;s++) {
-      if (IndTFor0(s)==it) {
-        M(s) = M(s) + dIntercept;
-      }
-    }
-  }
-  p = 1.0/(1.0+exp(-M));
-  p = Thresholding(p, 1.0e-2);
-  for (int s=0;s<ns;s++) {
-    LLmin += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
-  }
-  LLmin += - F;
-  if (LLmin>LLprev)
-  {
-    Intercept = InterceptPrev;
-    M = Mprev;
-    LLmin = LLprev;
-  }
-  return;
 }
 
 
