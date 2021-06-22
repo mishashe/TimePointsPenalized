@@ -75,6 +75,7 @@ void GetHessian(arma::mat x, arma::vec beta, arma::vec p, arma::vec y, double la
     }
     for (int g2=0; g2<g1; g2++) a(g1,g2) = a(g2,g1);
   }
+  a=a+0.1;
   return;
 }
 
