@@ -148,6 +148,8 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   arma::mat x0G(ns,nt);
   double LL;
   UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w,  IndFor0, IndTFor0, M, LLmin);
+  p = 1.0/(1.0+exp(-M));
+  p = Thresholding(p, 1.0e-2);
   for (int g=0;g<m0;g++) {
     for (int it=0;it<nt;it++) {dGg(it) = it*m0 + g;}
     x0G.fill(0);
@@ -232,7 +234,8 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
   arma::vec betaNew(nt);
   double LL;
   UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0, M, LLmin);
-  
+  p = 1.0/(1.0+exp(-M));
+  p = Thresholding(p, 1.0e-2);
   for (int g=0;g<m0;g++) {
     for (int it=0;it<nt;it++) {
       dGg(it) = it*m0 + g;
