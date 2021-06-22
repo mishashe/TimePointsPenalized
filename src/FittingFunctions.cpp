@@ -147,7 +147,7 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   arma::uvec dGg(nt);
   arma::mat x0G(ns,nt);
   double LL;
-  //UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w,  IndFor0, IndTFor0, M, LLmin);
+  UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w,  IndFor0, IndTFor0, M, LLmin);
   for (int g=0;g<m0;g++) {
     for (int it=0;it<nt;it++) {dGg(it) = it*m0 + g;}
     x0G.fill(0);
@@ -231,7 +231,8 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
   arma::vec betaOld(nt);
   arma::vec betaNew(nt);
   double LL;
-  //UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w,  IndFor0, IndTFor0, M, LLmin);
+  UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0, M, LLmin);
+  
   for (int g=0;g<m0;g++) {
     for (int it=0;it<nt;it++) {
       dGg(it) = it*m0 + g;
@@ -244,6 +245,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
     }
     GetHessian(x0G, betaOld, p, y, lam2,w,b,a);
     betaNew = glmnetSimple(a,b - a * betaOld,lam1);
+    return;
     if (any(betaNew!=betaOld)) {
       arma::vec Mnew = M + x0G * (betaNew-betaOld);
       arma::vec pnew = 1.0/(1.0+exp(-Mnew));
@@ -281,7 +283,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
 List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                    arma::vec beta, arma::vec Intercept, arma::vec w, arma::vec IndFor0,
                    arma::vec IndTFor0){
-  IndFor0 = IndFor0-1;
+  IndFor0 = IndFor0-1; for returning the glmnet independent time points fit
   IndTFor0 = IndTFor0-1;
   int nt = tV.size();
   w=w/accu(w);
@@ -324,7 +326,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
           any(sgn(beta) != sgn(betaPrev))) { 
     LLprev = LL;
     betaPrev = beta;
-    //SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
+    SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     Rcout<<LL<<std::endl;
   }
