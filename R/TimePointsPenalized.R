@@ -151,6 +151,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
       }
       data <- rbind(data,dataT)
     } 
+    print(fold)
     return(data)
   }
   fitAll <- dataCV[[1]]
@@ -205,7 +206,6 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
   }
   IndOptimum <- which.max(FigureMerit)
   OptimumLam1 <- lam1V[IndOptimum]
-  print(fold)
   return(list(dataCV=dataCV, logLike=logLike, AUC=AUC, pWilcoxonMinusLog10=pWilcoxonMinusLog10, 
               OptimumLam1=lam1V[IndOptimum], gamma=gamma, nGenes=nGenes, fit=fitAll, 
               nGenesUnion=colSums(nonZeroMatrix!=0),nGenesIntersect=colSums(nonZeroMatrix==length(tV))))

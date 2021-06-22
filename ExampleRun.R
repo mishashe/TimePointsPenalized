@@ -17,7 +17,7 @@ library(readr)
 library(ensembl)
 library(edgeR)
 library(rlist)
-cutoff <- 50
+cutoff <- 5
 
 system("export OPENBLAS_NUM_THREADS=40")
 system("export GOTO_NUM_THREADS=40")
@@ -229,9 +229,9 @@ x0 <- t(cpm(x0,log=TRUE))
 FollowUp <- FU
 y0 <- (case_control=="Case") + 0
 
-# for (i in 1:ncol(x0)) {
-#   x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
-# }
+for (i in 1:ncol(x0)) {
+  x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
+}
 
 
 
@@ -252,19 +252,24 @@ install_github("mishashe/TimePointsPenalized", force=TRUE)
 library(TimePointsPenalized)
 library(doParallel)
 registerDoParallel(cores = 43)
-beta <- rep(0,ncol(x)*length(tV))
 tV <- seq(4,7,1)*12
-lam1V <- 10^seq(1,-4.5,-0.025)
+beta <- rep(0,ncol(x)*length(tV))
+lam1V <- 10^seq(1,-1.5,-0.025)
 gamma <- 10
 folds <- 1:length(y0[Institute=="KCL1"])
 folds <- sample(cut(1:length(y0[Institute=="KCL1"]),breaks=19,labels=FALSE))
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
+fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], 
+                          lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
+                          startWithGlmnet=FALSE)
+
+
 registerDoParallel(cores = 20)
-for (gamma in 10^seq(4,-2,-0.5))
+for (gamma in 10^seq(2,-2,-0.5))
 {
   cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], 
                                   lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
-                                  startWithGlmnet=TRUE,folds)
+                                  startWithGlmnet=FALSE,folds)
   auc(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status, round(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1,3), direction="<")[1]
   j <- which.max(colMeans(cv$AUC))
   which.max(apply(cv$AUC,2,min))
