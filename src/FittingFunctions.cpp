@@ -32,7 +32,6 @@ double CalculateDeltaIntercept(arma::vec y, arma::vec p, arma::vec w){
   int ns = y.size();
   double DeltaBeta0=1.0;
   double DeltaBeta0Prev=50.0;
-
   while(abs(DeltaBeta0-DeltaBeta0Prev)/(1e-5+abs(DeltaBeta0)+abs(DeltaBeta0Prev))>1.0e-5)
   {
     double Sum1=0;
@@ -126,12 +125,12 @@ void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
     LLmin += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   }
   LLmin += - F;
-  if (LLmin>LLprev)
-  {
-    Intercept = InterceptPrev;
-    M = Mprev;
-    LLmin = LLprev;
-  }
+  // if (LLmin>LLprev)
+  // {
+  //   Intercept = InterceptPrev;
+  //   M = Mprev;
+  //   LLmin = LLprev;
+  // }
   return;
 }
 
@@ -240,7 +239,6 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
   arma::vec betaNew(nt);
   double LL;
   UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w,  IndFor0, IndTFor0, M, LLmin);
-
   for (int g=0;g<m0;g++)
   {
     for (int it=0;it<nt;it++) {
@@ -295,7 +293,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                    arma::vec beta, arma::vec Intercept, arma::vec w, arma::vec IndFor0,
                    arma::vec IndTFor0){
   //return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("nG") = accu(beta!=0))); // uncomment for returning the glmnet independent time points fit
-  IndFor0 = IndFor0-1;
+  IndFor0 = IndFor0-1; 
   IndTFor0 = IndTFor0-1;
   int nt = tV.size();
   w=w/accu(w);
@@ -342,6 +340,6 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
     SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     Rcout<<LL<<std::endl;
-  }
+    Rcout<<LL<<std::endl;
   return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("nG") = accu(beta!=0)));
 }
