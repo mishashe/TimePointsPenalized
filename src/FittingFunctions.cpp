@@ -251,7 +251,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
     //Rcout<<b(0)<<" "<<b(1)<<" "<<b(2)<<" "<<b(3)<<" "<<std::endl;
     
     betaNew = glmnetSimple(a,b - a * betaOld,lam1);
-    Rcout<<betaNew(1)<<std::endl;
+    //Rcout<<betaNew(1)<<std::endl;
     // return;
     if (any(betaNew!=betaOld)) {
       arma::vec Mnew = M + x0G * (betaNew-betaOld);
@@ -330,8 +330,8 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   double LLprev = -2*(LL+100);
   arma::vec betaPrev = -(beta+0.001);
   //Rcout<<abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<std::endl;
-  while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 |
-          any(sgn(beta) != sgn(betaPrev))) {
+  while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 {
+         // | any(sgn(beta) != sgn(betaPrev))) {
     LLprev = LL;
     betaPrev = beta;
     SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
