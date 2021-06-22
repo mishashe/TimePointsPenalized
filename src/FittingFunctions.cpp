@@ -32,8 +32,7 @@ double CalculateDeltaIntercept(arma::vec y, arma::vec p, arma::vec w){
   int ns = y.size();
   double DeltaBeta0=1.0;
   double DeltaBeta0Prev=50.0;
-  while(abs(DeltaBeta0-DeltaBeta0Prev)/(1e-5+abs(DeltaBeta0)+abs(DeltaBeta0Prev))>1.0e-5)
-  {
+  while(abs(DeltaBeta0-DeltaBeta0Prev)/(1e-5+abs(DeltaBeta0)+abs(DeltaBeta0Prev))>1.0e-5) {
     double Sum1=0;
     double Sum2=0;
     DeltaBeta0Prev=DeltaBeta0;
@@ -125,8 +124,7 @@ void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
     LLmin += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   }
   LLmin += - F;
-  if (LLmin>LLprev)
-  {
+  if (LLmin>LLprev) {
     Intercept = InterceptPrev;
     M = Mprev;
     LLmin = LLprev;
@@ -150,15 +148,13 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   arma::mat x0G(ns,nt);
   double LL;
   UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w,  IndFor0, IndTFor0, M, LLmin);
-  for (int g=0;g<m0;g++)
-  {
+  for (int g=0;g<m0;g++) {
     for (int it=0;it<nt;it++) {dGg(it) = it*m0 + g;}
     x0G.fill(0);
     for (int s=0;s<ns;s++) {x0G(s,IndTFor0(s)) = x0(IndFor0(s),g);}
     GetHessian(x0G, beta(dGg), p, y, lam2,w,b,a);
 
-    for (int it=0;it<nt;it++)
-    {
+    for (int it=0;it<nt;it++) {
       double betaOld = beta(g+m0*it);
       double betaTry = (b(it) - a(it,it) * betaOld)/a(it,it);
       int sigma0 = (betaTry > 0 ? 1 : (betaTry < 0 ? -1 : 0 ) );
@@ -167,8 +163,7 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
       if (sigma0!=sigma) {
         betaNew=0;
       }
-      if (betaNew!=betaOld)
-      {
+      if (betaNew!=betaOld) {
         arma::vec Mnew = M;
         for (int s=0;s<ns;s++) Mnew(s) += x0G(s,it) * (betaNew-betaOld);
         arma::vec pnew = 1.0/(1.0+exp(-Mnew));
@@ -187,14 +182,12 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
           LL+= lam2*(betaNew-beta(g+(it+1)*m0))*(betaNew-beta(g+(it+1)*m0))
                -lam2*(betaOld-beta(g+(it+1)*m0))*(betaOld-beta(g+(it+1)*m0));
         }
-        if (LL<LLmin)
-        {
+        if (LL<LLmin) {
           LLmin = LL;
           p = pnew;
           M = Mnew;
         }
-        else
-        {
+        else {
           beta(g+it*m0) = betaOld;
         }
       }
@@ -207,11 +200,11 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
 arma::vec glmnetSimple(arma::mat X, arma::vec Y, double lam1){
   int ng = Y.size();
   arma::vec beta0(ng);
-  beta0 = -solve( X, Y );
+  beta0 = -solve( X, Y ,solve_opts::no_approx);
   arma::vec sign0(ng);
   sign0 = sgn(beta0);
   arma::vec beta(ng);
-  beta = -solve( X, Y + sign0*lam1);
+  beta = -solve( X, Y + sign0*lam1,solve_opts::no_approx);
   arma::vec sign(ng);
   sign = sgn(beta);
   for (int g=0;g<ng;g++) {
@@ -239,8 +232,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
   arma::vec betaNew(nt);
   double LL;
   UpdateIntercept(x0, y, tV, lam1, lam2, beta, Intercept, w,  IndFor0, IndTFor0, M, LLmin);
-  for (int g=0;g<m0;g++)
-  {
+  for (int g=0;g<m0;g++) {
     for (int it=0;it<nt;it++) {
       dGg(it) = it*m0 + g;
     }
@@ -252,8 +244,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
     }
     GetHessian(x0G, betaOld, p, y, lam2,w,b,a);
     betaNew = glmnetSimple(a,b - a * betaOld,lam1);
-    if (any(betaNew!=betaOld))
-    {
+    if (any(betaNew!=betaOld)) {
       arma::vec Mnew = M + x0G * (betaNew-betaOld);
       arma::vec pnew = 1.0/(1.0+exp(-Mnew));
       pnew = Thresholding(pnew, 1.0e-2);
@@ -273,14 +264,12 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
         LL += lam2*(betaNew(it)-betaNew(it+1))*(betaNew(it)-betaNew(it+1))-lam2*(betaOld(it)
               -betaOld(it+1))*(betaOld(it)-betaOld(it+1));
       }
-      if (LL<LLmin)
-      {
+      if (LL<LLmin) {
         LLmin = LL;
         p = pnew;
         M = Mnew;
       }
-      else
-      {
+      else {
         beta(dGg) = betaOld;
       }
     }
@@ -292,7 +281,6 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam
 List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
                    arma::vec beta, arma::vec Intercept, arma::vec w, arma::vec IndFor0,
                    arma::vec IndTFor0){
-  //return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("nG") = accu(beta!=0))); // uncomment for returning the glmnet independent time points fit
   IndFor0 = IndFor0-1;
   IndTFor0 = IndTFor0-1;
   int nt = tV.size();
@@ -333,8 +321,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   double LLprev = 0;
   arma::vec betaPrev = -(beta+0.001);
   while (abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 |
-          any(sgn(beta) != sgn(betaPrev)))
-  { 
+          any(sgn(beta) != sgn(betaPrev))) { 
     LLprev = LL;
     betaPrev = beta;
     SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
