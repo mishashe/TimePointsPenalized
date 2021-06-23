@@ -88,7 +88,8 @@ void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   unsigned int m = beta.size();
   unsigned int nt = tV.size();
   unsigned int ns = y.size();
-  unsigned int m0; m0 = m/nt;
+  unsigned int m0; 
+  m0 = m/nt;
   arma::vec p(ns); 
 
   p = 1.0/(1.0+exp(-M));
