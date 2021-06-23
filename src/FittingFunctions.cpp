@@ -94,14 +94,14 @@ void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   p = 1.0/(1.0+exp(-M));
   p = Thresholding(p, 1.0e-2);
   double F=0;
-  for (int s=0;s<ns;s++) {
+  for (unsigned int s=0;s<ns;s++) {
     F += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   }
   // Update group of intercepts
   for (int it=0;it<nt;it++){
     std::vector<double> yT,pT,wT;
     
-    for (int s=0;s<ns;s++) {
+    for (unsigned int s=0;s<ns;s++) {
       if (IndTFor0(s)==it) {
         yT.push_back(y(IndFor0(s)));
         pT.push_back(p(IndFor0(s)));
@@ -110,7 +110,7 @@ void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
     }
     double dIntercept = CalculateDeltaIntercept(yT, pT, wT);
     Intercept(it) = Intercept(it) + dIntercept;
-    for (int s=0;s<ns;s++) {
+    for (unsigned int s=0;s<ns;s++) {
       if (IndTFor0(s)==it) {
         M(s) = M(s) + dIntercept;
       }
