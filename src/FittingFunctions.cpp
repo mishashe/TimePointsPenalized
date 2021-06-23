@@ -84,15 +84,14 @@ void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
                      arma::vec IndTFor0, arma::vec& M, double& LLmin){
   arma::vec InterceptPrev = Intercept;
   arma::vec Mprev = M;
-  double LLprev= LLmin;
+  double LLprev = LLmin;
   
   int m = beta.size();
   int nt = tV.size();
   int ns = y.size();
   int m0 = m/nt;
   arma::vec p(ns); 
-  double LL;
-  
+
   p = 1.0/(1.0+exp(-M));
   p = Thresholding(p, 1.0e-2);
   double F=0;
