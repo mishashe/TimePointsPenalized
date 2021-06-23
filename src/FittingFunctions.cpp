@@ -4,7 +4,7 @@
 using namespace Rcpp;
 
 arma::vec Thresholding(arma::vec p, double Threshold) {
-  for (int s=0; s<p.size(); s++) {
+  for (unsigned int s=0; s<p.size(); s++) {
     if (p(s) > 1.0-Threshold) p(s)=1.0-Threshold; 
     else if (p(s)<Threshold) p(s)=Threshold;
   }
@@ -13,7 +13,7 @@ arma::vec Thresholding(arma::vec p, double Threshold) {
 
 arma::vec sgn(arma::vec val) {
   arma::vec out(val.size());
-  for (int i=0; i<val.size(); i++)
+  for (unsigned int i=0; i<val.size(); i++)
   {
     if (val(i)>0) {
       out(i)=1;
@@ -334,15 +334,15 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   do {
     Rcout<<" LL s "<<LL<<" "<<LLprev<<" "<<fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<" "<<any(sgn(beta) != sgn(betaPrev))<<std::endl;
     Rcout<<" LL s 2 "<<LL<<" "<<LLprev<<" "<<fabs(LL-LLprev) <<" "<<sqrt(LLprev*LLprev+LL*LL)<<" "<<any(sgn(beta) != sgn(betaPrev))<<std::endl;
-    Rcout<<(fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 | any(sgn(beta) != sgn(betaPrev)))<<std::endl;
+    Rcout<<((fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5) | (any(sgn(beta) != sgn(betaPrev))))<<std::endl;
     LLprev = LL+0.00000001;
     betaPrev = beta;
     //SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     //GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     Rcout<<" LL "<<LL<<" "<<LLprev<<" "<<fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<" "<<any(sgn(beta) != sgn(betaPrev))<<std::endl;
     Rcout<<" LL 2 "<<LL<<" "<<LLprev<<" "<<fabs(LL-LLprev) <<" "<<sqrt(LLprev*LLprev+LL*LL)<<" "<<any(sgn(beta) != sgn(betaPrev))<<std::endl;
-    Rcout<<(fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 | any(sgn(beta) != sgn(betaPrev)))<<std::endl;
-    dontstop = (fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 | any(sgn(beta) != sgn(betaPrev)));
+    Rcout<<((fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5) | (any(sgn(beta) != sgn(betaPrev))))<<std::endl;
+    dontstop = ((fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5) | (any(sgn(beta) != sgn(betaPrev))));
     Rcout<<dontstop<<std::endl;
   }
   while (dontstop);
