@@ -323,7 +323,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
       LL+= lam2*(beta(g+(it+1)*m0)-beta(g+it*m0))*(beta(g+(it+1)*m0)-beta(g+it*m0));
     }
   }
-  double LLprev;
+  //double LLprev;
   arma::vec betaPrev;
   do{
     LLprev = LL;
