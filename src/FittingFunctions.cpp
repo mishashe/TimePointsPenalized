@@ -312,7 +312,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   p = 1.0/(1.0+exp(-M));
   p = Thresholding(p, 1.0e-2);
 
-  double LL=0;   
+  double LL=0.0;   
 
   for (int s=0;s<ns;s++) {
     LL += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
@@ -335,7 +335,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
     Rcout<<" LL s "<<LL<<" "<<LLprev<<" "<<fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<" "<<any(sgn(beta) != sgn(betaPrev))<<std::endl;
     Rcout<<" LL s 2 "<<LL<<" "<<LLprev<<" "<<fabs(LL-LLprev) <<" "<<sqrt(LLprev*LLprev+LL*LL)<<" "<<any(sgn(beta) != sgn(betaPrev))<<std::endl;
     Rcout<<(fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 | any(sgn(beta) != sgn(betaPrev)))<<std::endl;
-    LLprev = LL;
+    LLprev = LL+1.0;
     betaPrev = beta;
     //SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     //GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
