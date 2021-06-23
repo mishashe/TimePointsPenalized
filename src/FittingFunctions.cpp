@@ -330,7 +330,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   arma::vec betaPrev;
   do{
     LLprev = LL;
-    betaPrev = beta;
+    betaPrev = vec(beta);
     SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
     Rcout<<"LL = "<<LL<<"LLprev = "<<LLprev<<std::endl;
