@@ -88,7 +88,7 @@ void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   unsigned int m = beta.size();
   unsigned int nt = tV.size();
   unsigned int ns = y.size();
-  unsigned int m0 = m/nt;
+  unsigned int m0; m0 = m/nt;
   arma::vec p(ns); 
 
   p = 1.0/(1.0+exp(-M));
@@ -98,7 +98,7 @@ void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
     F += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   }
   // Update group of intercepts
-  for (int it=0;it<nt;it++){
+  for (unsigned int it=0;it<nt;it++){
     std::vector<double> yT,pT,wT;
     
     for (unsigned int s=0;s<ns;s++) {
@@ -118,7 +118,7 @@ void UpdateIntercept(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
   }
   p = 1.0/(1.0+exp(-M));
   p = Thresholding(p, 1.0e-2);
-  for (int s=0;s<ns;s++) {
+  for (unsigned int s=0;s<ns;s++) {
     LLmin += -y(s)*log(p(s))*w(s) - (1-y(s))*log(1.0-p(s))*w(s);
   }
   LLmin += - F;
