@@ -326,7 +326,7 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
       LL+= lam2*(beta(g+(it+1)*m0)-beta(g+it*m0))*(beta(g+(it+1)*m0)-beta(g+it*m0));
     }
   }
-  double LLprev; LLprev = -50.1654465;
+  double LLprev; //LLprev = -50.1654465;
   arma::vec betaPrev = -(beta+0.001);
   //Rcout<<abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<std::endl;
   bool dontstop = TRUE;
