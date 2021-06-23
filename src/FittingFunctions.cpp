@@ -330,8 +330,10 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   double LLprev = -2*(LL+100);
   arma::vec betaPrev = -(beta+0.001);
   //Rcout<<abs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<std::endl;
-  while (fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 
-          | any(sgn(beta) != sgn(betaPrev))) {
+  while (fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 | any(sgn(beta) != sgn(betaPrev))) {
+    Rcout<<" LL s "<<LL<<" "<<LLprev<<" "<<fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)<<" "<<any(sgn(beta) != sgn(betaPrev))<<std::endl;
+    Rcout<<" LL s 2 "<<LL<<" "<<LLprev<<" "<<fabs(LL-LLprev) <<" "<<sqrt(LLprev*LLprev+LL*LL)<<" "<<any(sgn(beta) != sgn(betaPrev))<<std::endl;
+    Rcout<<(fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5 | any(sgn(beta) != sgn(betaPrev)))<<std::endl;
     LLprev = LL;
     betaPrev = beta;
     SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
