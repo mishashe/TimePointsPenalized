@@ -325,7 +325,6 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   }
   double LLprev;
   arma::vec betaPrev;
-  int count=0;
   do{
     LLprev = LL;
     betaPrev = arma::vec(beta);

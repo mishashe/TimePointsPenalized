@@ -252,41 +252,48 @@ install_github("mishashe/TimePointsPenalized", force=TRUE)
 library(TimePointsPenalized)
 library(doParallel)
 registerDoParallel(cores = 43)
-tV <- seq(4,7,1)*12
+tV <- seq(4,9,1)*12
 beta <- rep(0,ncol(x)*length(tV))
 lam1V <- 10^seq(1,-1.5,-0.025)
 gamma <- 10
-folds <- 1:length(y0[Institute=="KCL1"])
-folds <- sample(cut(1:length(y0[Institute=="KCL1"]),breaks=19,labels=FALSE))
+# folds <- 1:length(y0[Institute=="KCL1"])
+folds <- sample(cut(1:length(y0[Institute=="KCL1"]),breaks=39,labels=FALSE))
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
-fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], 
-                          lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
-                          startWithGlmnet=FALSE)
+# fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], 
+#                           lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
+#                           startWithGlmnet=FALSE)
 
 
 registerDoParallel(cores = 20)
-for (gamma in 10^seq(2,-2,-0.5))
+for (gamma in 10^seq(-3,-3,0.25))
 {
   cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], 
                                   lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
                                   startWithGlmnet=FALSE,folds)
-  auc(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status, round(cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1,3), direction="<")[1]
-  j <- which.max(colMeans(cv$AUC))
-  which.max(apply(cv$AUC,2,min))
-  cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$lam1_1[cv$dataCV[cv$dataCV$timepoint==tV[1] & cv$dataCV$status %in% c(1,0),]$status==1]
-  
+  j <- which.max(colMeans(cv$AUC))+5
   pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box_",gamma,".pdf"))
   for (ilam1V in c(j,seq(1,length(lam1V),round(length(lam1V)/10))))
   {
     p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = paste0("lam1_",ilam1V),
-                   color = "status",add="jitter",add.params = list(size = 1)
-                   # ,ylim = c(0, 1)
-    ) +  stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
+                   color = "status",add="jitter",add.params = list(size = 1)) +  
+      stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
     p <- facet(p, facet.by = "timepoint")
     print(p)
   }
   dev.off()
 
+  
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/ROC_KCL1_KCL1_",gamma,".pdf"))
+  for (it in 1:length(tV))
+  {
+    Ind <- which(cv$dataCV$status %in% c(1,0) & cv$dataCV$timepoint==tV[it])
+    pROC_obj <- roc(cv$dataCV$status[Ind],cv$dataCV[Ind,j], smoothed = FALSE,
+                    ci=FALSE, ci.alpha=0.95, stratified=FALSE,
+                    plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE,
+                    print.auc=TRUE, show.thres=TRUE,cex.lab=1.0, cex.axis=1.0, cex.main=1.0, cex.sub=1.0,direction="<")
+  }
+  dev.off()
+  
   pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit_",gamma,".pdf"),height=15)
   par(mfrow = c(3, 1))
   matplot(log10(lam1V),t(cv$logLike),type = "l")
@@ -300,12 +307,13 @@ for (gamma in 10^seq(2,-2,-0.5))
   pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/GenesMatrix_",gamma,".pdf"),height=15)
   for (ilam1V in c(j,seq(1,length(lam1V),round(length(lam1V)/10))))
   {
-    betaMat <- matrix(0,nrow=ncol(x0),ncol=length(tV))
-    rownames(betaMat) <- colnames(x0)
+    betaMat <- matrix(0,nrow=ncol(x0)+1,ncol=length(tV))
+    rownames(betaMat) <- c(colnames(x0),"Intercept")
     colnames(betaMat) <- paste0("t_",tV)
     for (it in 1:length(tV))
     {
-      betaMat[,it] <- cv$fit[[it]]$beta[,ilam1V]
+      betaMat[1:ncol(x0),it] <- cv$fit[[it]]$beta[,ilam1V]
+      betaMat[nrow(betaMat),it] <- cv$fit[[it]]$Intercept[ilam1V]
     }
     betaMat <- betaMat[rowMeans(betaMat==0)!=1,]
     p <- Heatmap(betaMat,
@@ -314,6 +322,84 @@ for (gamma in 10^seq(2,-2,-0.5))
                  column_title = log10(lam1V[ilam1V])
     )
     print(p)
+  }
+  dev.off()
+  
+  ####################### predict NKI1 #############################
+  xNKI1 <- x0[Institute=="NKI1",]
+  yNKI1 <- y0[Institute=="NKI1"]
+  FollowUpNKI1 <- FollowUp[Institute=="NKI1"]
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box_KCL1_NKI1_",gamma,".pdf"))
+  for (it in 1:length(tV))
+  {
+    beta <- cv$fit[[it]]$beta[,j]
+    Intercept <- cv$fit[[it]]$Intercept[j]
+    preds  <- 1/(1+exp(-xNKI1 %*% beta - Intercept))
+    status <- ifelse(FollowUpNKI1 > tV[it],0,ifelse(yNKI1==1,1,-1))
+    Ind <- which(status %in% c(0,1))
+    preds  <- preds[Ind]
+    status <- status[Ind]
+    dataT <- data.frame(status=status,preds=preds)
+    p <- ggboxplot(dataT[dataT$status %in% c(1,0),], x = "status", y = "preds",
+                   color = "status",add="jitter",add.params = list(size = 1)) +  
+      stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
+    # p <- facet(p, facet.by = "timepoint")
+    print(p)
+  }
+  dev.off()
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/ROC_KCL1_NKI1_",gamma,".pdf"))
+  for (it in 1:length(tV))
+  {
+    beta <- cv$fit[[it]]$beta[,j]
+    Intercept <- cv$fit[[it]]$Intercept[j]
+    preds  <- 1/(1+exp(-xNKI1 %*% beta - Intercept))
+    status <- ifelse(FollowUpNKI1 > tV[it],0,ifelse(yNKI1==1,1,-1))
+    Ind <- which(status %in% c(0,1))
+    preds  <- preds[Ind]
+    status <- status[Ind]
+    pROC_obj <- roc(status,preds, smoothed = FALSE,
+                    ci=FALSE, ci.alpha=0.95, stratified=FALSE,
+                    plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE,
+                    print.auc=TRUE, show.thres=TRUE,cex.lab=1.0, cex.axis=1.0, cex.main=1.0, cex.sub=1.0,direction="<")
+  }
+  dev.off()
+  
+  ####################### predict Set2 #############################
+  xSet2 <- x0[Institute=="Set2",]
+  ySet2 <- y0[Institute=="Set2"]
+  FollowUpSet2 <- FollowUp[Institute=="Set2"]
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box_KCL1_Set2_",gamma,".pdf"))
+  for (it in 1:length(tV))
+  {
+    beta <- cv$fit[[it]]$beta[,j]
+    Intercept <- cv$fit[[it]]$Intercept[j]
+    preds  <- 1/(1+exp(-xSet2 %*% beta - Intercept))
+    status <- ifelse(FollowUpSet2 > tV[it],0,ifelse(ySet2==1,1,-1))
+    Ind <- which(status %in% c(0,1))
+    preds  <- preds[Ind]
+    status <- status[Ind]
+    dataT <- data.frame(status=status,preds=preds)
+    p <- ggboxplot(dataT[dataT$status %in% c(1,0),], x = "status", y = "preds",
+                   color = "status",add="jitter",add.params = list(size = 1)) +  
+      stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
+    # p <- facet(p, facet.by = "timepoint")
+    print(p)
+  }
+  dev.off()
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/ROC_KCL1_Set2_",gamma,".pdf"))
+  for (it in 1:length(tV))
+  {
+    beta <- cv$fit[[it]]$beta[,j]
+    Intercept <- cv$fit[[it]]$Intercept[j]
+    preds  <- 1/(1+exp(-xSet2 %*% beta - Intercept))
+    status <- ifelse(FollowUpSet2 > tV[it],0,ifelse(ySet2==1,1,-1))
+    Ind <- which(status %in% c(0,1))
+    preds  <- preds[Ind]
+    status <- status[Ind]
+    pROC_obj <- roc(status,preds, smoothed = FALSE,
+                    ci=FALSE, ci.alpha=0.95, stratified=FALSE,
+                    plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE,
+                    print.auc=TRUE, show.thres=TRUE,cex.lab=1.0, cex.axis=1.0, cex.main=1.0, cex.sub=1.0,direction="<")
   }
   dev.off()
 }
@@ -373,9 +459,13 @@ system("git commit -m 'added cv' ")
 system("git push")
 
 
-system("export OPENBLAS_NUM_THREADS=1")
-system("export GOTO_NUM_THREADS=1")
-system("export OMP_NUM_THREADS=1")
+export OPENBLAS_NUM_THREADS=1
+export GOTO_NUM_THREADS=1
+export OMP_NUM_THREADS=1
+
+system("export OPENBLAS_NUM_THREADS=20")
+system("export GOTO_NUM_THREADS=20")
+system("export OMP_NUM_THREADS=20")
 ################################################ MINIMAL EXAMPLE #######################################################
 library(rlist)
 library(Rcpp)

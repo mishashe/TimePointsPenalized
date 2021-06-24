@@ -25,6 +25,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
                                    Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE){  
   if (startWithGlmnet){
     fits0 <- fitTimePointsNonPenalized(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0))
+    return(fits0)
   }
   else{
     fits0 <-  NULL
