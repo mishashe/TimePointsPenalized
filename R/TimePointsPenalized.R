@@ -261,7 +261,7 @@ fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma,
     w[IndT][which(y[IndT]==1)] <- 1/sum(y[IndT]==1)
     w[IndT] <- w[IndT]/sum(w)
     fit <- glmnet(x0[rownames(x0) %in% Clinical$samples[IndT],], y[IndT],
-                  lambda=lam1V, intercept = TRUE, weights=w[IndT],  family = "binomial", alpha=1)
+                  lambda=lam1V, intercept = TRUE, weights=w[IndT],  family = "binomial", alpha=0.5)
     fits <- list.append(fits,fit)
   }
   return(fits)
