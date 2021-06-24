@@ -325,13 +325,13 @@ List Fit(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double lam2,
   }
   double LLprev;
   arma::vec betaPrev;
-  do{
-    LLprev = LL;
-    betaPrev = arma::vec(beta);
-    SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
-    GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
-  }
-  while ((fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5) | (any(sgn(beta) != sgn(betaPrev))));
+  // do{
+  //   LLprev = LL;
+  //   betaPrev = arma::vec(beta);
+  //   SingleGeneRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
+  //   GroupRound(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0,IndTFor0, M, LL);
+  // }
+  // while ((fabs(LL-LLprev)/sqrt(LLprev*LLprev+LL*LL)>1.0e-5) | (any(sgn(beta) != sgn(betaPrev))));
   return(List::create(Named("beta") = beta, Named("Intercept") = Intercept, Named("nG") = accu(beta!=0)));
 }
 
