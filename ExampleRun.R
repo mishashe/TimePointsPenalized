@@ -77,11 +77,16 @@ Ind <- which(!is.na(GenesNames))
 xKCL1 <- xKCL1[Ind,]
 rownames(xKCL1) <- GenesNames[Ind]
 
-xKCL1 <- DGEList(xKCL1)
-xKCL1 <- calcNormFactors(xKCL1,method="TMM")
-# cutoff <- 5
-drop <- which(apply(cpm(xKCL1), 1, mean) < cutoff)
-xKCL1 <- xKCL1[-drop,] 
+# xKCL1 <- DGEList(xKCL1)
+# xKCL1 <- calcNormFactors(xKCL1,method="TMM")
+# drop <- which(apply(cpm(xKCL1), 1, mean) < cutoff)
+# xKCL1 <- xKCL1[-drop,] 
+
+xx <- DGEList(xKCL1)
+xx <- calcNormFactors(xx,method="TMM")
+xx <- cpm(xx, log=TRUE)
+xKCL1 <- xKCL1[which(rowSds(xx)>0.75),]
+
 dim(xKCL1)
 Out <- as.matrix(data.frame(time=FU,status=(case_control=="Case")+0))
 mm <- model.matrix(~0 + case_control)
@@ -130,11 +135,18 @@ Ind <- which(!is.na(GenesNames))
 xNKI1 <- xNKI1[Ind,]
 rownames(xNKI1) <- GenesNames[Ind]
 
-xNKI1 <- DGEList(xNKI1)
-xNKI1 <- calcNormFactors(xNKI1,method="TMM")
-# cutoff <- 5
-drop <- which(apply(cpm(xNKI1), 1, mean) < cutoff)
-xNKI1 <- xNKI1[-drop,] 
+# xNKI1 <- DGEList(xNKI1)
+# xNKI1 <- calcNormFactors(xNKI1,method="TMM")
+# drop <- which(apply(cpm(xNKI1), 1, mean) < cutoff)
+# xNKI1 <- xNKI1[-drop,] 
+
+xNKI1 <- xNKI1[which(rowMeans(xNKI1)>1),]
+xx <- DGEList(xNKI1)
+xx <- calcNormFactors(xx,method="TMM")
+xx <- cpm(xx, log=TRUE)
+xNKI1 <- xNKI1[which(rowSds(xx)>0.75),]
+
+
 dim(xNKI1)
 Out <- as.matrix(data.frame(time=FU,status=(case_control=="Case")+0))
 mm <- model.matrix(~0 + case_control)
@@ -192,11 +204,17 @@ Ind <- which(!is.na(GenesNames))
 x2 <- x2[Ind,]
 rownames(x2) <- GenesNames[Ind]
 
-x2 <- DGEList(x2)
-x2 <- calcNormFactors(x2,method="TMM")
-# cutoff <- 5
-drop <- which(apply(cpm(x2), 1, mean) < cutoff)
-x2 <- x2[-drop,] 
+# x2 <- DGEList(x2)
+# x2 <- calcNormFactors(x2,method="TMM")
+# drop <- which(apply(cpm(x2), 1, mean) < cutoff)
+# x2 <- x2[-drop,] 
+
+x2 <- x2[which(rowMeans(x2)>1),]
+xx <- DGEList(x2)
+xx <- calcNormFactors(xx,method="TMM")
+xx <- cpm(xx, log=TRUE)
+x2 <- x2[which(rowSds(xx)>0.75),]
+
 dim(x2)
 Out <- as.matrix(data.frame(time=FU,status=(case_control=="Case")+0))
 mm <- model.matrix(~0 + case_control)
@@ -229,9 +247,9 @@ x0 <- t(cpm(x0,log=TRUE))
 FollowUp <- FU
 y0 <- (case_control=="Case") + 0
 
-for (i in 1:ncol(x0)) {
-  x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
-}
+# for (i in 1:ncol(x0)) {
+#   x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
+# }
 
 
 
@@ -403,6 +421,8 @@ for (gamma in 10^seq(-3,-3,0.25))
   }
   dev.off()
 }
+
+
 
 
 
