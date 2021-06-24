@@ -90,7 +90,7 @@ xKCL1 <- xKCL1[which(rowSds(xx)>0.75),]
 dim(xKCL1)
 Out <- as.matrix(data.frame(time=FU,status=(case_control=="Case")+0))
 mm <- model.matrix(~0 + case_control)
-pdf(paste0(OutDir,"plots/KCL1.pdf"))
+pdf(paste0(OutDir,"/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/KCL1.pdf"))
 y <- voom(xKCL1, mm, plot = TRUE)
 dev.off()
 
@@ -150,7 +150,7 @@ xNKI1 <- xNKI1[which(rowSds(xx)>0.75),]
 dim(xNKI1)
 Out <- as.matrix(data.frame(time=FU,status=(case_control=="Case")+0))
 mm <- model.matrix(~0 + case_control)
-pdf(paste0(OutDir,"plots/NKI1.pdf"))
+pdf(paste0(OutDir,"/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/NKI1.pdf"))
 y <- voom(xNKI1, mm, plot = TRUE)
 dev.off()
 
@@ -218,7 +218,7 @@ x2 <- x2[which(rowSds(xx)>0.75),]
 dim(x2)
 Out <- as.matrix(data.frame(time=FU,status=(case_control=="Case")+0))
 mm <- model.matrix(~0 + case_control)
-pdf(paste0(OutDir,"plots/Set2.pdf"))
+pdf(paste0(OutDir,"/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Set2.pdf"))
 y <- voom(x2, mm, plot = TRUE)
 dev.off()
 
