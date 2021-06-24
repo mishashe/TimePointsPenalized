@@ -102,8 +102,8 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
     # beta <- fit$beta
     # Intercept <- fit$Intercept
     for (it in 1:length(tV)){
-      betaOut <- fit$beta[(1:(dim(x0)[2]))+(it-1)*dim(x0)[2],1,drop=TRUE]
-      InterceptOut <- fit$Intercept[it]
+      betaOut <- beta[(1:(dim(x0)[2]))+(it-1)*dim(x0)[2],1,drop=TRUE]
+      InterceptOut <- Intercept[it]
       IndT <- which(Clinical$time==tV[it])
       fits[[it]]$beta <- cbind(fits[[it]]$beta,betaOut)
       fits[[it]]$Intercept <- c(fits[[it]]$Intercept,InterceptOut)
