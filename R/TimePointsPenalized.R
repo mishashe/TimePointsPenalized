@@ -25,7 +25,6 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
                                    Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE){  
   if (startWithGlmnet){
     fits0 <- fitTimePointsNonPenalized(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0))
-    return(fits0)
   }
   else{
     fits0 <-  NULL
@@ -99,9 +98,9 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
         Intercept[it] <- fits0[[it]]$a0[ilam1]
       }
     } 
-    fit <- Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0)
-    beta <- fit$beta
-    Intercept <- fit$Intercept
+    # fit <- Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0)
+    # beta <- fit$beta
+    # Intercept <- fit$Intercept
     for (it in 1:length(tV)){
       betaOut <- fit$beta[(1:(dim(x0)[2]))+(it-1)*dim(x0)[2],1,drop=TRUE]
       InterceptOut <- fit$Intercept[it]

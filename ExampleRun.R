@@ -269,7 +269,7 @@ for (gamma in 10^seq(-3,-3,0.25))
 {
   cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], 
                                   lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
-                                  startWithGlmnet=FALSE,folds)
+                                  startWithGlmnet=TRUE,folds)
   j <- which.max(colMeans(cv$AUC))+5
   pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box_",gamma,".pdf"))
   for (ilam1V in c(j,seq(1,length(lam1V),round(length(lam1V)/10))))
