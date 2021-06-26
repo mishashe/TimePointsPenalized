@@ -454,7 +454,7 @@ roxygen2::roxygenise(load_code = "source")
 pkgbuild::compile_dll()
 devtools::document()
 system("git add --all .")
-system("git commit -m 'added cv' ")
+system("git commit -m 'added alpha' ")
 system("git push")
 
 
