@@ -16,6 +16,7 @@ library(biomaRt)
 library(readr)
 library(ensembl)
 library(edgeR)
+library(resample)
 library(rlist)
 cutoff <- 5
 
@@ -77,20 +78,24 @@ Ind <- which(!is.na(GenesNames))
 xKCL1 <- xKCL1[Ind,]
 rownames(xKCL1) <- GenesNames[Ind]
 
+xKCL1 <- xKCL1[which(rowMeans(xKCL1)>1),]
+
+
 # xKCL1 <- DGEList(xKCL1)
 # xKCL1 <- calcNormFactors(xKCL1,method="TMM")
 # drop <- which(apply(cpm(xKCL1), 1, mean) < cutoff)
 # xKCL1 <- xKCL1[-drop,] 
 
-xx <- DGEList(xKCL1)
-xx <- calcNormFactors(xx,method="TMM")
-xx <- cpm(xx, log=TRUE)
-xKCL1 <- xKCL1[which(rowSds(xx)>0.75),]
+# xKCL1 <- xKCL1[which(rowMeans(xKCL1)>10),]
+# xx <- DGEList(xKCL1)
+# xx <- calcNormFactors(xx,method="TMM")
+# xx <- cpm(xx, log=TRUE)
+# xKCL1 <- xKCL1[which(rowSds(xx)>0.75),]
 
 dim(xKCL1)
 Out <- as.matrix(data.frame(time=FU,status=(case_control=="Case")+0))
 mm <- model.matrix(~0 + case_control)
-pdf(paste0(OutDir,"/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/KCL1.pdf"))
+pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/KCL1.pdf"))
 y <- voom(xKCL1, mm, plot = TRUE)
 dev.off()
 
@@ -135,22 +140,25 @@ Ind <- which(!is.na(GenesNames))
 xNKI1 <- xNKI1[Ind,]
 rownames(xNKI1) <- GenesNames[Ind]
 
+xNKI1 <- xNKI1[which(rowMeans(xNKI1)>1),]
+
+
 # xNKI1 <- DGEList(xNKI1)
 # xNKI1 <- calcNormFactors(xNKI1,method="TMM")
 # drop <- which(apply(cpm(xNKI1), 1, mean) < cutoff)
 # xNKI1 <- xNKI1[-drop,] 
 
-xNKI1 <- xNKI1[which(rowMeans(xNKI1)>1),]
-xx <- DGEList(xNKI1)
-xx <- calcNormFactors(xx,method="TMM")
-xx <- cpm(xx, log=TRUE)
-xNKI1 <- xNKI1[which(rowSds(xx)>0.75),]
+# xNKI1 <- xNKI1[which(rowMeans(xNKI1)>10),]
+# xx <- DGEList(xNKI1)
+# xx <- calcNormFactors(xx,method="TMM")
+# xx <- cpm(xx, log=TRUE)
+# xNKI1 <- xNKI1[which(rowSds(xx)>0.75),]
 
 
 dim(xNKI1)
 Out <- as.matrix(data.frame(time=FU,status=(case_control=="Case")+0))
 mm <- model.matrix(~0 + case_control)
-pdf(paste0(OutDir,"/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/NKI1.pdf"))
+pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/NKI1.pdf"))
 y <- voom(xNKI1, mm, plot = TRUE)
 dev.off()
 
@@ -204,21 +212,24 @@ Ind <- which(!is.na(GenesNames))
 x2 <- x2[Ind,]
 rownames(x2) <- GenesNames[Ind]
 
+x2 <- x2[which(rowMeans(x2)>1),]
+
+
 # x2 <- DGEList(x2)
 # x2 <- calcNormFactors(x2,method="TMM")
 # drop <- which(apply(cpm(x2), 1, mean) < cutoff)
 # x2 <- x2[-drop,] 
 
-x2 <- x2[which(rowMeans(x2)>1),]
-xx <- DGEList(x2)
-xx <- calcNormFactors(xx,method="TMM")
-xx <- cpm(xx, log=TRUE)
-x2 <- x2[which(rowSds(xx)>0.75),]
+# x2 <- x2[which(rowMeans(x2)>10),]
+# xx <- DGEList(x2)
+# xx <- calcNormFactors(xx,method="TMM")
+# xx <- cpm(xx, log=TRUE)
+# x2 <- x2[which(rowSds(xx)>0.75),]
 
 dim(x2)
 Out <- as.matrix(data.frame(time=FU,status=(case_control=="Case")+0))
 mm <- model.matrix(~0 + case_control)
-pdf(paste0(OutDir,"/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Set2.pdf"))
+pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Set2.pdf"))
 y <- voom(x2, mm, plot = TRUE)
 dev.off()
 
@@ -232,10 +243,13 @@ case_control_tot <- c(case_control_tot,case_control)
 library(sva)
 Genes <- intersect(rownames(xKCL1),rownames(xNKI1))
 Genes <- intersect(Genes,rownames(x2))
-
+length(Genes)
 Institute <- c(rep("KCL1",ncol(xKCL1)),rep("NKI1",ncol(xNKI1)),rep("Set2",ncol(x2)))
 # x0 <- as.matrix(cbind(xKCL1[Genes,],xNKI1[Genes,]))
 x0 <- ComBat_seq(as.matrix(cbind(xKCL1[Genes,],xNKI1[Genes,],x2[Genes,])), batch=Institute, group=NULL)
+# x0 <- x0[which(rowMeans(x0)>10),]
+
+
 
 FU <- FU_tot
 case_control <- case_control_tot
@@ -244,12 +258,14 @@ x0 <- DGEList(x0)
 x0 <- calcNormFactors(x0,method="TMM")
 x0 <- t(cpm(x0,log=TRUE))
 
+x0 <- x0[,order(colVars(x0),decreasing=TRUE)[1:1000]]
+
 FollowUp <- FU
 y0 <- (case_control=="Case") + 0
 
-# for (i in 1:ncol(x0)) {
-#   x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
-# }
+for (i in 1:ncol(x0)) {
+  x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
+}
 
 
 
@@ -272,10 +288,10 @@ library(doParallel)
 registerDoParallel(cores = 43)
 tV <- seq(4,9,1)*12
 beta <- rep(0,ncol(x)*length(tV))
-lam1V <- 10^seq(1,-1.5,-0.025)
+lam1V <- 10^seq(1,-2,-0.025)
 gamma <- 10
-# folds <- 1:length(y0[Institute=="KCL1"])
-folds <- sample(cut(1:length(y0[Institute=="KCL1"]),breaks=39,labels=FALSE))
+folds <- 1:length(y0[Institute=="KCL1"])
+# folds <- sample(cut(1:length(y0[Institute=="KCL1"]),breaks=19,labels=FALSE))
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], 
 #                           lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
@@ -283,13 +299,13 @@ folds <- sample(cut(1:length(y0[Institute=="KCL1"]),breaks=39,labels=FALSE))
 
 
 registerDoParallel(cores = 20)
-for (gamma in 10^seq(-3,-3,0.25))
+for (gamma in 10^seq(-3,3,0.5))
 {
   cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], 
-                                  lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
-                                  startWithGlmnet=TRUE,folds)
-  j <- which.max(colMeans(cv$AUC))
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box_",gamma,".pdf"))
+                                  lam1V, gamma, alpha, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
+                                  startWithGlmnet=FALSE,folds)
+  j <- which.max(colMeans(cv$logLike))
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/Box_",gamma,".pdf"))
   for (ilam1V in c(j,seq(1,length(lam1V),round(length(lam1V)/10))))
   {
     p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = paste0("lam1_",ilam1V),
@@ -301,7 +317,7 @@ for (gamma in 10^seq(-3,-3,0.25))
   dev.off()
 
   
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/ROC_KCL1_KCL1_",gamma,".pdf"))
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/ROC_KCL1_KCL1_",gamma,".pdf"))
   for (it in 1:length(tV))
   {
     Ind <- which(cv$dataCV$status %in% c(1,0) & cv$dataCV$timepoint==tV[it])
@@ -312,7 +328,7 @@ for (gamma in 10^seq(-3,-3,0.25))
   }
   dev.off()
   
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/FigureMerit_",gamma,".pdf"),height=15)
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/FigureMerit_",gamma,".pdf"),height=15)
   par(mfrow = c(3, 1))
   matplot(log10(lam1V),t(cv$logLike),type = "l")
   matplot(log10(lam1V),t(cv$AUC),type = "l")
@@ -322,7 +338,7 @@ for (gamma in 10^seq(-3,-3,0.25))
   dev.off()
   
   
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/GenesMatrix_",gamma,".pdf"),height=15)
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/GenesMatrix_",gamma,".pdf"),height=15)
   for (ilam1V in c(j,seq(1,length(lam1V),round(length(lam1V)/10))))
   {
     betaMat <- matrix(0,nrow=ncol(x0)+1,ncol=length(tV))
@@ -347,7 +363,7 @@ for (gamma in 10^seq(-3,-3,0.25))
   xNKI1 <- x0[Institute=="NKI1",]
   yNKI1 <- y0[Institute=="NKI1"]
   FollowUpNKI1 <- FollowUp[Institute=="NKI1"]
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box_KCL1_NKI1_",gamma,".pdf"))
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/Box_KCL1_NKI1_",gamma,".pdf"))
   for (it in 1:length(tV))
   {
     beta <- cv$fit[[it]]$beta[,j]
@@ -365,7 +381,7 @@ for (gamma in 10^seq(-3,-3,0.25))
     print(p)
   }
   dev.off()
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/ROC_KCL1_NKI1_",gamma,".pdf"))
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/ROC_KCL1_NKI1_",gamma,".pdf"))
   for (it in 1:length(tV))
   {
     beta <- cv$fit[[it]]$beta[,j]
@@ -386,7 +402,7 @@ for (gamma in 10^seq(-3,-3,0.25))
   xSet2 <- x0[Institute=="Set2",]
   ySet2 <- y0[Institute=="Set2"]
   FollowUpSet2 <- FollowUp[Institute=="Set2"]
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/Box_KCL1_Set2_",gamma,".pdf"))
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/Box_KCL1_Set2_",gamma,".pdf"))
   for (it in 1:length(tV))
   {
     beta <- cv$fit[[it]]$beta[,j]
@@ -404,7 +420,7 @@ for (gamma in 10^seq(-3,-3,0.25))
     print(p)
   }
   dev.off()
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/Pathways/plots/TimePoints/noRT/Box/ROC_KCL1_Set2_",gamma,".pdf"))
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/ROC_KCL1_Set2_",gamma,".pdf"))
   for (it in 1:length(tV))
   {
     beta <- cv$fit[[it]]$beta[,j]

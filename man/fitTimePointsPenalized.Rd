@@ -10,6 +10,7 @@ fitTimePointsPenalized(
   FollowUp,
   lam1V,
   gamma,
+  alpha,
   tV,
   Clinical0 = data.frame(case_control0 = y0),
   startWithGlmnet = FALSE

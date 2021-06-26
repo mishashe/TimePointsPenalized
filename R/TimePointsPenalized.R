@@ -21,10 +21,10 @@ NULL
 #' @param tV array of time points
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV, 
+fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, alpha, tV, 
                                    Clinical0=data.frame(case_control0=y0), startWithGlmnet=FALSE){  
   if (startWithGlmnet){
-    fits0 <- fitTimePointsNonPenalized(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0))
+    fits0 <- fitTimePointsNonPenalized(y0, x0, FollowUp, lam1V, gamma, alpha, tV, Clinical0=data.frame(case_control0=y0))
   }
   else{
     fits0 <-  NULL
@@ -88,6 +88,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
     fits[[it]]$Intercept <- c()
     fits[[it]]$lambda <- c()
     fits[[it]]$gamma <- c()
+    fits[[it]]$alpha <- c()
   }
   for (ilam1 in 1:length(lam1V)){
     lam1 <- lam1V[ilam1]/length(tV)
@@ -98,7 +99,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
         Intercept[it] <- fits0[[it]]$a0[ilam1]
       }
     } 
-    fit <- Fit(x0, y, tV, lam1, lam2, beta, Intercept, w, IndFor0, IndTFor0)
+    fit <- Fit(x0, y, tV, lam1, alpha, lam2, beta, Intercept, w, IndFor0, IndTFor0)
     beta <- fit$beta
     Intercept <- fit$Intercept
     for (it in 1:length(tV)){
@@ -109,6 +110,7 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
       fits[[it]]$Intercept <- c(fits[[it]]$Intercept,InterceptOut)
       fits[[it]]$lambda <- c(fits[[it]]$lambda,lam1)
       fits[[it]]$gamma <- c(fits[[it]]$gamma,gamma)
+      fits[[it]]$alpha <- c(fits[[it]]$alpha,alpha)
     }
   }
   return(fits)
@@ -124,17 +126,17 @@ fitTimePointsPenalized <- function(y0, x0, FollowUp, lam1V, gamma, tV,
 #' @param tV array of time points
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0), 
+fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, alpha, tV, Clinical0=data.frame(case_control0=y0), 
                                       startWithGlmnet=FALSE,folds,whatToMaximize="auc"){
   dataCV <- foreach (fold = c(-1,unique(folds)), .inorder=FALSE) %dopar%
   {
     if (fold==-1){
       print(fold)
-      return(fitTimePointsPenalized(y0, x0, FollowUp, lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0), startWithGlmnet))
+      return(fitTimePointsPenalized(y0, x0, FollowUp, lam1V, gamma, alpha, tV, Clinical0=data.frame(case_control0=y0), startWithGlmnet))
     }
     
     Ind <- which(fold!=folds)
-    fits <- fitTimePointsPenalized(y0[Ind], x0[Ind,], FollowUp[Ind], lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Ind]), startWithGlmnet)
+    fits <- fitTimePointsPenalized(y0[Ind], x0[Ind,], FollowUp[Ind], lam1V, gamma, alpha, tV, Clinical0=data.frame(case_control0=y0[Ind]), startWithGlmnet)
     data <- data.frame()
     for (it in 1:length(tV))
     {
@@ -207,7 +209,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
   IndOptimum <- which.max(FigureMerit)
   OptimumLam1 <- lam1V[IndOptimum]
   return(list(dataCV=dataCV, logLike=logLike, AUC=AUC, pWilcoxonMinusLog10=pWilcoxonMinusLog10, 
-              OptimumLam1=lam1V[IndOptimum], gamma=gamma, nGenes=nGenes, fit=fitAll, 
+              OptimumLam1=lam1V[IndOptimum], gamma=gamma, alpha=alpha, nGenes=nGenes, fit=fitAll, 
               nGenesUnion=colSums(nonZeroMatrix!=0),nGenesIntersect=colSums(nonZeroMatrix==length(tV))))
 }
 
@@ -225,7 +227,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, tV, Clinic
 #' @param tV array of time points
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
-fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, 
+fitTimePointsNonPenalized <- function(y0, x0, FollowUp, lam1V, gamma, alpha,
                                       tV, Clinical0=data.frame(case_control0=y0)){     
   y <- c()
   Clinical <- data.frame()
