@@ -151,8 +151,7 @@ void SingleGeneRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, doubl
     for (int it=0;it<nt;it++) {dGg(it) = it*m0 + g;}
     x0G.fill(0);
     for (int s=0;s<ns;s++) {x0G(s,IndTFor0(s)) = x0(IndFor0(s),g);}
-    GetHessian(x0G, beta(dGg), p, y, lam2,w,b,a);
-
+    GetHessian(x0G, beta(dGg), p, y, lam1, alpha, lam2,w,b,a);
     for (int it=0;it<nt;it++) {
       double betaOld = beta(g+m0*it);
       double betaTry = (b(it) - a(it,it) * betaOld)/a(it,it);
@@ -243,7 +242,7 @@ void GroupRound(arma::mat x0, arma::vec y, arma::vec tV, double lam1, double alp
     for (int s=0;s<ns;s++) {
       x0G(s,IndTFor0(s)) = x0(IndFor0(s),g);
     }
-    GetHessian(x0G, betaOld, p, y, lam2,w,b,a);
+    GetHessian(x0G, betaOld, p, y, lam1, alpha, lam2,w,b,a);
     //Rcout<<a(0,0)<<" "<<a(0,1)<<" "<<a(1,0)<<" "<<a(1,1)<<" "<<a(1,2)<<" "<<a(2,1)<<" "<<std::endl;
     //Rcout<<b(0)<<" "<<b(1)<<" "<<b(2)<<" "<<b(3)<<" "<<std::endl;
     
