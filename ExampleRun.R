@@ -18,6 +18,7 @@ library(ensembl)
 library(edgeR)
 library(resample)
 library(rlist)
+library(matrixStats)
 cutoff <- 5
 
 system("export OPENBLAS_NUM_THREADS=40")
@@ -78,23 +79,15 @@ Ind <- which(!is.na(GenesNames))
 xKCL1 <- xKCL1[Ind,]
 rownames(xKCL1) <- GenesNames[Ind]
 
-xKCL1 <- xKCL1[which(rowMeans(xKCL1)>1),]
-
-
-# xKCL1 <- DGEList(xKCL1)
-# xKCL1 <- calcNormFactors(xKCL1,method="TMM")
-# drop <- which(apply(cpm(xKCL1), 1, mean) < cutoff)
-# xKCL1 <- xKCL1[-drop,] 
-
-# xKCL1 <- xKCL1[which(rowMeans(xKCL1)>10),]
-# xx <- DGEList(xKCL1)
-# xx <- calcNormFactors(xx,method="TMM")
-# xx <- cpm(xx, log=TRUE)
-# xKCL1 <- xKCL1[which(rowSds(xx)>0.75),]
+xKCL1 <- xKCL1[which(rowMedians(xKCL1)>1),]
+xx <- DGEList(xKCL1)
+xx <- calcNormFactors(xx,method="TMM")
+xx <- cpm(xx, log=TRUE)
+xKCL1 <- xKCL1[which(rowSds(xx)>0.75),]
 
 dim(xKCL1)
 Out <- as.matrix(data.frame(time=FU,status=(case_control=="Case")+0))
-mm <- model.matrix(~0 + case_control)
+mm <- model.matrix(~0 + case_control*0)
 pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/KCL1.pdf"))
 y <- voom(xKCL1, mm, plot = TRUE)
 dev.off()
@@ -140,19 +133,11 @@ Ind <- which(!is.na(GenesNames))
 xNKI1 <- xNKI1[Ind,]
 rownames(xNKI1) <- GenesNames[Ind]
 
-xNKI1 <- xNKI1[which(rowMeans(xNKI1)>1),]
-
-
-# xNKI1 <- DGEList(xNKI1)
-# xNKI1 <- calcNormFactors(xNKI1,method="TMM")
-# drop <- which(apply(cpm(xNKI1), 1, mean) < cutoff)
-# xNKI1 <- xNKI1[-drop,] 
-
-# xNKI1 <- xNKI1[which(rowMeans(xNKI1)>10),]
-# xx <- DGEList(xNKI1)
-# xx <- calcNormFactors(xx,method="TMM")
-# xx <- cpm(xx, log=TRUE)
-# xNKI1 <- xNKI1[which(rowSds(xx)>0.75),]
+xNKI1 <- xNKI1[which(rowMedians(xNKI1)>1),]
+xx <- DGEList(xNKI1)
+xx <- calcNormFactors(xx,method="TMM")
+xx <- cpm(xx, log=TRUE)
+xNKI1 <- xNKI1[which(rowSds(xx)>0.75),]
 
 
 dim(xNKI1)
@@ -211,20 +196,12 @@ GenesNames <- GenesNames[GenesEnsembl,2]
 Ind <- which(!is.na(GenesNames))
 x2 <- x2[Ind,]
 rownames(x2) <- GenesNames[Ind]
+x2 <- x2[which(rowMedians(x2)>1),]
+xx <- DGEList(x2)
+xx <- calcNormFactors(xx,method="TMM")
+xx <- cpm(xx, log=TRUE)
+x2 <- x2[which(rowSds(xx)>0.75),]
 
-x2 <- x2[which(rowMeans(x2)>1),]
-
-
-# x2 <- DGEList(x2)
-# x2 <- calcNormFactors(x2,method="TMM")
-# drop <- which(apply(cpm(x2), 1, mean) < cutoff)
-# x2 <- x2[-drop,] 
-
-# x2 <- x2[which(rowMeans(x2)>10),]
-# xx <- DGEList(x2)
-# xx <- calcNormFactors(xx,method="TMM")
-# xx <- cpm(xx, log=TRUE)
-# x2 <- x2[which(rowSds(xx)>0.75),]
 
 dim(x2)
 Out <- as.matrix(data.frame(time=FU,status=(case_control=="Case")+0))
@@ -245,20 +222,30 @@ Genes <- intersect(rownames(xKCL1),rownames(xNKI1))
 Genes <- intersect(Genes,rownames(x2))
 length(Genes)
 Institute <- c(rep("KCL1",ncol(xKCL1)),rep("NKI1",ncol(xNKI1)),rep("Set2",ncol(x2)))
-# x0 <- as.matrix(cbind(xKCL1[Genes,],xNKI1[Genes,]))
 x0 <- ComBat_seq(as.matrix(cbind(xKCL1[Genes,],xNKI1[Genes,],x2[Genes,])), batch=Institute, group=NULL)
-# x0 <- x0[which(rowMeans(x0)>10),]
+pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/All.pdf"))
+x0 <- t(voom(x0, model.matrix(~0 + Institute), plot = TRUE)$E)
+dev.off()
 
+# Genes <- colnames(x0)[order(colVars(x0[Institute=="KCL1",]),decreasing=TRUE)[1:2000]]
+# Genes <- intersect(Genes,colnames(x0)[order(colVars(x0[Institute=="NKI1",]),decreasing=TRUE)[1:2000]])
+# Genes <- intersect(Genes,colnames(x0)[order(colVars(x0[Institute=="Set2",]),decreasing=TRUE)[1:2000]])
+# length(Genes)
+# x0 <- x0[,Genes]
 
+# x0 <- x0[,order(colVars(x0),decreasing=TRUE)[1:1000]]
 
+dim(x0)
+
+# x0 <- prcomp(x0, scale = FALSE,rank=nrow(x0),tol=0)$x
 FU <- FU_tot
 case_control <- case_control_tot
 
-x0 <- DGEList(x0)
-x0 <- calcNormFactors(x0,method="TMM")
-x0 <- t(cpm(x0,log=TRUE))
-
-x0 <- x0[,order(colVars(x0),decreasing=TRUE)[1:1000]]
+# x0 <- DGEList(x0)
+# x0 <- calcNormFactors(x0,method="TMM")
+# x0 <- t(cpm(x0,log=TRUE))
+# x0 <- x0[,Genes]
+# x0 <- x0[,order(colVars(x0),decreasing=TRUE)[1:1000]]
 
 FollowUp <- FU
 y0 <- (case_control=="Case") + 0
@@ -267,45 +254,56 @@ for (i in 1:ncol(x0)) {
   x0[,i] <- (x0[,i] - mean(x0[,i]))/sd(x0[,i])
 }
 
+# for (I in c("KCL1","NKI1","Set2"))
+# {
+#   for (i in 1:ncol(x0)) {
+#     x0[Institute==I,i] <- (x0[Institute==I,i] - mean(x0[Institute==I,i]))/sd(x0[Institute==I,i])
+#   }
+# }
+  
+# Genes <- intersect(GenesKCL1,GenesNKI1)
+# Genes <- intersect(Genes,Genes2)
+# x0 <- x0[,Genes]
+
+print(paste0(dim(x0)," ----------------------------------------------"))
 
 
-
-
-
-
-
+tV <- seq(4,9,1)*12
+Sets <- c("Set2", "NKI1", "KCL1")
+# Sets <- c("NKI1", "KCL1", "Set2")
+# Sets <- c("KCL1", "NKI1", "Set2")
 library(rlist)
 library(Rcpp)
 library(foreach)
 library(devtools)
 library(glmnet)
 library(pROC)
-detach("package:TimePointsPenalized", unload=TRUE)
-remove.packages("TimePointsPenalized")
-install_github("mishashe/TimePointsPenalized", force=TRUE)
+# detach("package:TimePointsPenalized", unload=TRUE)
+# remove.packages("TimePointsPenalized")
+# install_github("mishashe/TimePointsPenalized", force=TRUE)
 library(TimePointsPenalized)
 library(doParallel)
 registerDoParallel(cores = 43)
-tV <- seq(4,9,1)*12
 beta <- rep(0,ncol(x)*length(tV))
 lam1V <- 10^seq(1,-2,-0.025)
 gamma <- 10
-folds <- 1:length(y0[Institute=="KCL1"])
-# folds <- sample(cut(1:length(y0[Institute=="KCL1"]),breaks=19,labels=FALSE))
+alpha <- 0.5
+# folds <- 1:length(y0[Institute==Sets[1]])
+folds <- sample(cut(1:length(y0[Institute==Sets[1]]),breaks=41,labels=FALSE))
 # fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], lam1V, gamma, tV, standardize=TRUE, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), startWithGlmnet=TRUE)
-# fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], 
-#                           lam1V, gamma, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
+# fits <- fitTimePointsPenalized(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"],
+#                           lam1V, gamma, alpha, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]),
 #                           startWithGlmnet=FALSE)
 
 
-registerDoParallel(cores = 20)
-for (gamma in 10^seq(-3,3,0.5))
+registerDoParallel(cores = 42)
+for (gamma in 10^seq(-2,1,1))
 {
-  cv <- fitTimePointsPenalized.cv(y0[Institute=="KCL1"], x0[Institute=="KCL1",], FollowUp[Institute=="KCL1"], 
-                                  lam1V, gamma, alpha, tV, Clinical0=data.frame(case_control0=y0[Institute=="KCL1"]), 
+  cv <- fitTimePointsPenalized.cv(y0[Institute==Sets[1]], x0[Institute==Sets[1],], FollowUp[Institute==Sets[1]], 
+                                  lam1V, gamma, alpha, tV, Clinical0=data.frame(case_control0=y0[Institute==Sets[1]]), 
                                   startWithGlmnet=FALSE,folds)
-  j <- which.max(colMeans(cv$logLike))
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/Box_",gamma,".pdf"))
+  j <- which.max(colMins(cv$logLike))
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/Box_",Sets[1],"_",Sets[1],"_",gamma,".pdf"))
   for (ilam1V in c(j,seq(1,length(lam1V),round(length(lam1V)/10))))
   {
     p <- ggboxplot(cv$dataCV[cv$dataCV$status %in% c(1,0),], x = "status", y = paste0("lam1_",ilam1V),
@@ -317,14 +315,15 @@ for (gamma in 10^seq(-3,3,0.5))
   dev.off()
 
   
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/ROC_KCL1_KCL1_",gamma,".pdf"))
+  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/ROC_",Sets[1],"_",Sets[1],"_",gamma,".pdf"))
   for (it in 1:length(tV))
   {
     Ind <- which(cv$dataCV$status %in% c(1,0) & cv$dataCV$timepoint==tV[it])
-    pROC_obj <- roc(cv$dataCV$status[Ind],cv$dataCV[Ind,j], smoothed = FALSE,
+    pROC_obj <- roc(cv$dataCV$status[Ind],cv$dataCV[Ind,j+5], smoothed = FALSE,
                     ci=FALSE, ci.alpha=0.95, stratified=FALSE,
                     plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE,
                     print.auc=TRUE, show.thres=TRUE,cex.lab=1.0, cex.axis=1.0, cex.main=1.0, cex.sub=1.0,direction="<")
+    title(paste0("time point = ",tV[it]/12,"yrs"))
   }
   dev.off()
   
@@ -359,83 +358,48 @@ for (gamma in 10^seq(-3,3,0.5))
   }
   dev.off()
   
-  ####################### predict NKI1 #############################
-  xNKI1 <- x0[Institute=="NKI1",]
-  yNKI1 <- y0[Institute=="NKI1"]
-  FollowUpNKI1 <- FollowUp[Institute=="NKI1"]
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/Box_KCL1_NKI1_",gamma,".pdf"))
-  for (it in 1:length(tV))
+  ####################### predict others (validation) #############################
+  for (iSets in 2:length(Sets))
   {
-    beta <- cv$fit[[it]]$beta[,j]
-    Intercept <- cv$fit[[it]]$Intercept[j]
-    preds  <- 1/(1+exp(-xNKI1 %*% beta - Intercept))
-    status <- ifelse(FollowUpNKI1 > tV[it],0,ifelse(yNKI1==1,1,-1))
-    Ind <- which(status %in% c(0,1))
-    preds  <- preds[Ind]
-    status <- status[Ind]
-    dataT <- data.frame(status=status,preds=preds)
-    p <- ggboxplot(dataT[dataT$status %in% c(1,0),], x = "status", y = "preds",
-                   color = "status",add="jitter",add.params = list(size = 1)) +  
-      stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
-    # p <- facet(p, facet.by = "timepoint")
-    print(p)
+    xPred <- x0[Institute==Sets[iSets],]
+    yPred <- y0[Institute==Sets[iSets]]
+    FollowUpPred <- FollowUp[Institute==Sets[iSets]]
+    pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/Box_",Sets[1],"_",Sets[iSets],"_",gamma,".pdf"))
+    for (it in 1:length(tV))
+    {
+      beta <- cv$fit[[it]]$beta[,j]
+      Intercept <- cv$fit[[it]]$Intercept[j]
+      preds  <- 1/(1+exp(-xPred %*% beta - Intercept))
+      status <- ifelse(FollowUpPred > tV[it],0,ifelse(yPred==1,1,-1))
+      Ind <- which(status %in% c(0,1))
+      preds  <- preds[Ind]
+      status <- status[Ind]
+      dataT <- data.frame(status=status,preds=preds)
+      p <- ggboxplot(dataT[dataT$status %in% c(1,0),], x = "status", y = "preds",
+                     color = "status",add="jitter",add.params = list(size = 1), title=paste0("time point = ",tV[it]/12,"yrs")) +  
+        stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
+      # p <- facet(p, facet.by = "timepoint")
+      print(p)
+    }
+    dev.off()
+    pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/ROC_",Sets[1],"_",Sets[iSets],"_",gamma,".pdf"))
+    for (it in 1:length(tV))
+    {
+      beta <- cv$fit[[it]]$beta[,j]
+      Intercept <- cv$fit[[it]]$Intercept[j]
+      preds  <- 1/(1+exp(-xPred %*% beta - Intercept))
+      status <- ifelse(FollowUpPred > tV[it],0,ifelse(yPred==1,1,-1))
+      Ind <- which(status %in% c(0,1))
+      preds  <- preds[Ind]
+      status <- status[Ind]
+      pROC_obj <- roc(status,preds, smoothed = FALSE,
+                      ci=FALSE, ci.alpha=0.95, stratified=FALSE,
+                      plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE,
+                      print.auc=TRUE, show.thres=TRUE,cex.lab=1.0, cex.axis=1.0, cex.main=1.0, cex.sub=1.0,direction="<")
+      title(paste0("time point = ",tV[it]/12,"yrs"))
+    }
+    dev.off()
   }
-  dev.off()
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/ROC_KCL1_NKI1_",gamma,".pdf"))
-  for (it in 1:length(tV))
-  {
-    beta <- cv$fit[[it]]$beta[,j]
-    Intercept <- cv$fit[[it]]$Intercept[j]
-    preds  <- 1/(1+exp(-xNKI1 %*% beta - Intercept))
-    status <- ifelse(FollowUpNKI1 > tV[it],0,ifelse(yNKI1==1,1,-1))
-    Ind <- which(status %in% c(0,1))
-    preds  <- preds[Ind]
-    status <- status[Ind]
-    pROC_obj <- roc(status,preds, smoothed = FALSE,
-                    ci=FALSE, ci.alpha=0.95, stratified=FALSE,
-                    plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE,
-                    print.auc=TRUE, show.thres=TRUE,cex.lab=1.0, cex.axis=1.0, cex.main=1.0, cex.sub=1.0,direction="<")
-  }
-  dev.off()
-  
-  ####################### predict Set2 #############################
-  xSet2 <- x0[Institute=="Set2",]
-  ySet2 <- y0[Institute=="Set2"]
-  FollowUpSet2 <- FollowUp[Institute=="Set2"]
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/Box_KCL1_Set2_",gamma,".pdf"))
-  for (it in 1:length(tV))
-  {
-    beta <- cv$fit[[it]]$beta[,j]
-    Intercept <- cv$fit[[it]]$Intercept[j]
-    preds  <- 1/(1+exp(-xSet2 %*% beta - Intercept))
-    status <- ifelse(FollowUpSet2 > tV[it],0,ifelse(ySet2==1,1,-1))
-    Ind <- which(status %in% c(0,1))
-    preds  <- preds[Ind]
-    status <- status[Ind]
-    dataT <- data.frame(status=status,preds=preds)
-    p <- ggboxplot(dataT[dataT$status %in% c(1,0),], x = "status", y = "preds",
-                   color = "status",add="jitter",add.params = list(size = 1)) +  
-      stat_compare_means(method = "wilcox.test") + theme(text = element_text(size = 10))
-    # p <- facet(p, facet.by = "timepoint")
-    print(p)
-  }
-  dev.off()
-  pdf(paste0("/home/m.sheinman/Development/precision-CaseControl/src/models/TimePointsMy/plots/Box/ROC_KCL1_Set2_",gamma,".pdf"))
-  for (it in 1:length(tV))
-  {
-    beta <- cv$fit[[it]]$beta[,j]
-    Intercept <- cv$fit[[it]]$Intercept[j]
-    preds  <- 1/(1+exp(-xSet2 %*% beta - Intercept))
-    status <- ifelse(FollowUpSet2 > tV[it],0,ifelse(ySet2==1,1,-1))
-    Ind <- which(status %in% c(0,1))
-    preds  <- preds[Ind]
-    status <- status[Ind]
-    pROC_obj <- roc(status,preds, smoothed = FALSE,
-                    ci=FALSE, ci.alpha=0.95, stratified=FALSE,
-                    plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE,
-                    print.auc=TRUE, show.thres=TRUE,cex.lab=1.0, cex.axis=1.0, cex.main=1.0, cex.sub=1.0,direction="<")
-  }
-  dev.off()
 }
 
 

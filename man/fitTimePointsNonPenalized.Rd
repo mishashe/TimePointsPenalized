@@ -26,6 +26,8 @@ fitTimePointsNonPenalized(
 
 \item{gamma}{prefactor of the second penalty term - differences between adjacent time points coefficients}
 
+\item{alpha}{glmnet parameter}
+
 \item{tV}{array of time points}
 
 \item{Clinical0}{dataframe with clinical information (same order as rows of x0)}

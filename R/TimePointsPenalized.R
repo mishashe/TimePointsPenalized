@@ -18,6 +18,7 @@ NULL
 #' @param FollowUp follow-up times (recurrence time for recurrences and follow-up for patients with no recurrences)
 #' @param lam1V array of lasso penalty prefactor
 #' @param gamma prefactor of the second penalty term - differences between adjacent time points coefficients
+#' @param alpha glmnet parameter 
 #' @param tV array of time points
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
@@ -224,6 +225,7 @@ fitTimePointsPenalized.cv <- function(y0, x0, FollowUp, lam1V, gamma, alpha, tV,
 #' @param FollowUp follow-up times (recurrence time for recurrences and follow-up for patients with no recurrences)
 #' @param lam1V array of lasso penalty prefactor
 #' @param gamma prefactor of the second penalty term - differences between adjacent time points coefficients
+#' @param alpha glmnet parameter
 #' @param tV array of time points
 #' @param Clinical0 dataframe with clinical information (same order as rows of x0)
 #' @export
